@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_play_bar">48dp</dimen>
+    <dimen name="default_space">16dp</dimen>
+    <dimen name="press_space">48dp</dimen>
+    <dimen name="z_height">5dp</dimen>
+    <dimen name="music_list_space">72dp</dimen>
+    <dimen name="av_space">12dp</dimen>
+    <dimen name="playing_bar_progress">32dp</dimen>
+    <dimen name="progress_bar_margin">8dp</dimen>
+    <dimen name="playing_bar_text_size">16sp</dimen>
+    <dimen name="album_space">36dp</dimen>
+    <dimen name="album_padding">32dp</dimen>
+    <dimen name="album_top">2dp</dimen>
+    <dimen name="album_bottom">2dp</dimen>
+    <dimen name="album_other">4dp</dimen>
+    <dimen name="album_info_d">200dp</dimen>
+    <dimen name="album_info_w">100dp</dimen>
+    <dimen name="text_size">20sp</dimen>
+</resources>

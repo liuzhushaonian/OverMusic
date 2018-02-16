@@ -1,0 +1,64 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/bottom_play_bar"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.app.legend.overmusic.fragment.PlayBarFragment"
+    android:paddingEnd="@dimen/default_space"
+    android:background="@color/colorWhite"
+    >
+
+    <!--&lt;!&ndash; TODO: Update blank fragment layout &ndash;&gt;-->
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="@dimen/bottom_play_bar"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_marginEnd="@dimen/press_space"-->
+        <!--&gt;-->
+
+        <com.app.legend.overmusic.utils.MusicViewPager
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/bottom_play_bar"
+            android:id="@+id/bottom_view_pager"
+            android:layout_marginEnd="@dimen/press_space"
+            >
+
+
+        </com.app.legend.overmusic.utils.MusicViewPager>
+
+    <!--</LinearLayout>-->
+
+    <FrameLayout
+        android:layout_width="@dimen/press_space"
+        android:layout_height="@dimen/press_space"
+        android:layout_gravity="end"
+        >
+
+        <com.app.legend.overmusic.utils.RoundProgressBar
+            android:layout_width="@dimen/playing_bar_progress"
+            android:layout_height="@dimen/playing_bar_progress"
+            app:roundWidth="3.5dp"
+            android:layout_marginStart="@dimen/progress_bar_margin"
+            android:layout_marginTop="@dimen/progress_bar_margin"
+            android:id="@+id/playing_bar_progress"
+            app:roundColor="@color/colorGrey"
+            app:roundProgressColor="@color/colorWhite"
+            app:max="500"
+            />
+
+        <ImageView
+            android:layout_width="@dimen/press_space"
+            android:layout_height="@dimen/press_space"
+            android:layout_gravity="end"
+            android:id="@+id/play_bar_button"
+            android:src="@drawable/ic_play_arrow_black_24dp"
+            android:scaleType="center"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:backgroundTint="@color/colorWhite"
+            />
+
+
+    </FrameLayout>
+
+</FrameLayout>

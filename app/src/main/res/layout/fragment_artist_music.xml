@@ -1,0 +1,93 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.app.legend.overmusic.fragment.ArtistInfoFragment"
+    android:background="@color/colorWhite"
+    >
+
+    <!-- TODO: Update blank fragment layout -->
+    <com.app.legend.overmusic.utils.MyNestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/artist_info_netes_scroll_view"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:id="@+id/artist_info_name"
+            android:gravity="center"
+            android:background="@color/colorGrey"
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/album"
+                android:padding="@dimen/default_space"
+                />
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/artist_info_album_list"
+                android:paddingStart="@dimen/default_space"
+                android:paddingEnd="@dimen/default_space"
+                >
+
+
+            </android.support.v7.widget.RecyclerView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/music"
+                android:padding="@dimen/default_space"
+                />
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/artist_info_music_list"
+                >
+
+
+            </android.support.v7.widget.RecyclerView>
+
+
+
+        </LinearLayout>
+    </com.app.legend.overmusic.utils.MyNestedScrollView>
+
+    <!--<include-->
+        <!--layout="@layout/toolbar"-->
+        <!--android:id="@+id/artist_info_toolbar"-->
+        <!--/>-->
+
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/artist_info_toolbar"
+        android:fitsSystemWindows="true"
+        android:background="@color/colorBlue"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        >
+
+
+    </android.support.v7.widget.Toolbar>
+
+
+</FrameLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+
+        <item
+            android:id="@+id/change_color"
+            android:title="@string/change_color"
+            android:icon="@drawable/ic_palette_black_24dp"
+            />
+
+        <item
+            android:id="@+id/scan"
+            android:title="@string/scane_music"
+            android:icon="@drawable/ic_search_black_24dp"
+            />
+        <item
+            android:id="@+id/clean"
+            android:title="@string/clean_cache"
+            android:icon="@drawable/ic_hourglass_full_black_24dp"
+            />
+        <item
+            android:id="@+id/upgrade"
+            android:title="@string/upgrade"
+            android:icon="@drawable/ic_donut_large_black_24dp"
+            />
+
+    </group>
+
+
+    <item
+        android:title="@string/others"
+        >
+        <menu>
+            <item android:id="@+id/about_me"
+                android:title="@string/about_developer"
+                android:icon="@drawable/ic_whatshot_black_24dp"
+                />
+
+            <item android:id="@+id/about_app"
+                android:title="@string/about_app"
+                android:icon="@drawable/ic_phone_android_black_24dp"
+                />
+
+            <item
+                android:id="@+id/exit"
+                android:title="@string/exit"
+                android:icon="@drawable/ic_exit_to_app_black_24dp"
+                />
+
+        </menu>
+
+
+    </item>
+
+</menu>

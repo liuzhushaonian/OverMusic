@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_black_24dp"
+        app:showAsAction="always"
+        android:id="@+id/search"
+        />
+
+    <item
+        android:title="@string/string_play_all"
+        android:id="@+id/play_all"
+        />
+    <item
+        android:title="@string/string_queue"
+        android:id="@+id/list_queue"
+        />
+
+    <item
+        android:title="@string/string_new_list"
+        android:id="@+id/new_list"
+        />
+</menu>
