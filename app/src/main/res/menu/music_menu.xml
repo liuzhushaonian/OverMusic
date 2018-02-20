@@ -14,10 +14,10 @@
         <!--android:id="@+id/set_as_ring"-->
         <!--/>-->
 
-    <item
-        android:title="@string/next_play"
-        android:id="@+id/next_play"
-        />
+    <!--<item-->
+        <!--android:title="@string/next_play"-->
+        <!--android:id="@+id/next_play"-->
+        <!--/>-->
 
     <item
         android:title="@string/see_artist"

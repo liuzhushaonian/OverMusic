@@ -42,7 +42,7 @@
             android:layout_marginTop="@dimen/progress_bar_margin"
             android:id="@+id/playing_bar_progress"
             app:roundColor="@color/colorGrey"
-            app:roundProgressColor="@color/colorWhite"
+            app:roundProgressColor="@color/colorOrange"
             app:max="500"
             />
 

@@ -1,12 +1,17 @@
 package com.app.legend.overmusic.presenter;
 
 
+import com.app.legend.overmusic.bean.Music;
+import com.app.legend.overmusic.event.AutoPagerEvent;
 import com.app.legend.overmusic.event.PagerChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayListChangeEvent;
+import com.app.legend.overmusic.event.PlayPositionEvent;
 import com.app.legend.overmusic.interfaces.IPlayBarPresenter;
+import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
 import java.util.List;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -17,7 +22,7 @@ import io.reactivex.disposables.Disposable;
 public class PlayBarPresenter {
 
     private IPlayBarPresenter playBarFragment;
-    private Disposable disposable,pagerChange,playStatus;
+    private Disposable disposable,pagerChange,playStatus,autoPager,play_position;
 
     public PlayBarPresenter(IPlayBarPresenter playBarFragment) {
         this.playBarFragment = playBarFragment;
@@ -52,6 +57,17 @@ public class PlayBarPresenter {
            int status=playEvent.getStatus();
             playBarFragment.setStatus(status);
         });
+
+        autoPager=RxBus.getDefault().tObservable(AutoPagerEvent.class).subscribe(autoPagerEvent -> {
+
+            runToCurrentMusic(autoPagerEvent.getPosition());
+        });
+
+        play_position=RxBus.getDefault().tObservable(PlayPositionEvent.class)
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(playPositionEvent -> {
+            changePosition(playPositionEvent.getPosition());
+
+        });
     }
 
     public void unregister(){
@@ -67,6 +83,10 @@ public class PlayBarPresenter {
         if (playStatus!=null&&!playStatus.isDisposed()){
             playStatus.isDisposed();
         }
+
+        if (autoPager!=null&&!autoPager.isDisposed()){
+            autoPager.isDisposed();
+        }
     }
 
     private void runToCurrentMusic(int position){
@@ -81,6 +101,35 @@ public class PlayBarPresenter {
         playBarFragment.setCurrentPager(position);
 //                break;
 //        }
+    }
+
+    /**
+     * 恢复时自动获取数据
+     */
+    public void getData(){
+        if (playBarFragment!=null){
+            List<Integer> integerList= PlayHelper.create().getCurrentList();
+            int position=PlayHelper.create().getPosition();
+
+
+
+            playBarFragment.setDataList(integerList);
+
+            runToCurrentMusic(position);
+        }
+
+    }
+
+
+
+    private void changePosition(int progress){
+//        Music music=PlayHelper.create().getCurrent_music();
+//        float time=music.getTime()/1000;
+//
+//        int progress= (int) (500/time*position/1000);
+
+        playBarFragment.setProgress(progress);
+
     }
 
 }

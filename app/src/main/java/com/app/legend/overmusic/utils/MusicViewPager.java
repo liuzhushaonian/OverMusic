@@ -35,4 +35,6 @@ public class MusicViewPager extends ViewPager {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         return isScroll&&super.onInterceptTouchEvent(ev);
     }
+
+
 }

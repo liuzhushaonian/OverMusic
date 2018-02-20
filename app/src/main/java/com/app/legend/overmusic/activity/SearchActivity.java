@@ -1,6 +1,8 @@
 package com.app.legend.overmusic.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,7 +11,9 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.adapter.SearchHistoryAdapter;
@@ -40,6 +44,7 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
     private SearchView searchView;
     private SearchPresenter presenter;
     private Disposable query_dis,artist_dis,album_dis;
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +91,17 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
         });
     }
 
+    /**
+     * 搜索事件
+     */
     private void searchEvent(){
 
-        searchView.setIconifiedByDefault(true);
 
+        searchView.setIconifiedByDefault(true);
+        int id = searchView.getResources().getIdentifier("search_src_text", "id", getApplicationContext().getPackageName());
+
+        this.textView=searchView.findViewById(id);
+        this.textView.setFocusable(true);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -97,6 +109,7 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
 //                query(query);
 //                Log.d("query--->>",query+"");
                 insertQuery(query);
+                closeSoftKeybord(textView);
                 return true;
             }
 
@@ -107,6 +120,14 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
             }
         });
 
+    }
+
+    //关闭输入法
+    private void closeSoftKeybord(View view){
+        InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
     }
 
     private void initList(){

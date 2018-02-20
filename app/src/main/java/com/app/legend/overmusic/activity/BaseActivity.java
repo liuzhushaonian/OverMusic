@@ -1,6 +1,7 @@
 package com.app.legend.overmusic.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.RingtoneManager;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.SettingRingToneEvent;
+import com.app.legend.overmusic.service.PlayService;
 import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.RxBus;
 
@@ -49,6 +51,9 @@ public class BaseActivity extends AppCompatActivity {
         window.setStatusBarColor(Color.TRANSPARENT);
         super.onCreate(savedInstanceState);
         register();
+
+        Intent intent=new Intent(this, PlayService.class);
+        startService(intent);
 
     }
 

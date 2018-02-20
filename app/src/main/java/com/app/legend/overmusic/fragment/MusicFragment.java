@@ -21,6 +21,8 @@ import com.app.legend.overmusic.adapter.MusicAdapter;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.interfaces.IMusicFragmentPresenter;
 import com.app.legend.overmusic.presenter.MusicFragmentPresenter;
+import com.app.legend.overmusic.utils.ImageLoader;
+
 import java.util.List;
 
 
@@ -62,6 +64,7 @@ public class MusicFragment extends BaseFragment implements IMusicFragmentPresent
         getData();
         return view;
     }
+
 
     @Override
     public void onDestroy() {

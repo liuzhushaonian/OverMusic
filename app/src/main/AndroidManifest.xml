@@ -31,7 +31,9 @@
             android:exported="true" />
 
         <activity android:name=".activity.PlayingActivity" />
-        <activity android:name=".activity.SearchActivity">
+        <activity android:name=".activity.SearchActivity"
+            android:windowSoftInputMode="adjustPan"
+            >
 
         </activity>
     </application>

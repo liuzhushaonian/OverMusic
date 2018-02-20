@@ -1,6 +1,7 @@
 package com.app.legend.overmusic.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.legend.overmusic.R;
+import com.app.legend.overmusic.activity.PlayingActivity;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.utils.ImageLoader;
 
@@ -21,11 +23,14 @@ import com.app.legend.overmusic.utils.ImageLoader;
  */
 public class PlayBarPagerFragment extends BaseFragment {
 
-    Music playing_music;
+    private Music playing_music;
 
     private ImageView imageView;
 
     private TextView song,info;
+
+    public static final String TAG="music";
+
 
     public Music getPlaying_music() {
         return playing_music;
@@ -35,7 +40,7 @@ public class PlayBarPagerFragment extends BaseFragment {
 
         Bundle bundle=getArguments();
 
-        Music music= (Music) bundle.getSerializable("music");
+        Music music= (Music) bundle.getSerializable(TAG);
 
         this.playing_music=music;
     }
@@ -66,8 +71,12 @@ public class PlayBarPagerFragment extends BaseFragment {
         ImageLoader.getImageLoader(getContext()).setAlbum(playing_music,imageView,ImageLoader.SMALL,w,w);
 
         view.setOnClickListener(v-> {
+            //打开播放页面
 
+            Intent intent=new Intent(getContext(), PlayingActivity.class);
+            intent.putExtra("music",playing_music);
 
+            getActivity().startActivity(intent);
         });
         return view;
     }

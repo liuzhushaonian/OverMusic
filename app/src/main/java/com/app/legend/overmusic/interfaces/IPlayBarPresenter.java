@@ -19,4 +19,7 @@ public interface IPlayBarPresenter {
 
     void setStatus(int status);
 
+    void setProgress(int progress);
+
+
 }

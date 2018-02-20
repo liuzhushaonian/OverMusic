@@ -36,13 +36,14 @@
             >
 
             <android.support.v7.widget.SearchView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:imeOptions="actionSearch"
                 app:defaultQueryHint="找找音乐~"
                 app:iconifiedByDefault="true"
                 android:id="@+id/search_view"
-
+                android:paddingEnd="@dimen/default_space"
+                android:paddingStart="0dp"
                 >
 
             </android.support.v7.widget.SearchView>

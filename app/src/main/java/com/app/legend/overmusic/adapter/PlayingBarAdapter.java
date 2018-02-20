@@ -38,7 +38,8 @@ public class PlayingBarAdapter extends FragmentStatePagerAdapter{
 
             PlayBarPagerFragment fragment=new PlayBarPagerFragment();
             Bundle bundle=new Bundle();
-            bundle.putSerializable("music",music);
+
+            bundle.putSerializable(PlayBarPagerFragment.TAG,music);
 
             fragment.setArguments(bundle);
 

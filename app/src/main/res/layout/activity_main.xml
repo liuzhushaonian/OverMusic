@@ -70,6 +70,7 @@
             android:id="@+id/bottom_layout"
             android:orientation="vertical"
             android:visibility="gone"
+            android:elevation="@dimen/cardview_default_elevation"
             >
             <fragment
                 android:layout_width="match_parent"

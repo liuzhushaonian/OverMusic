@@ -13,11 +13,13 @@ import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.bean.PlayList;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -382,23 +384,30 @@ public class Mp3Util {
 
     //转换时间
     public static String formatTime(long time){
-        String min=time/(1000*60)+"";
-        String sec=time%(1000*60)+"";
-        if (min.length()<1){
-            min="0"+time/(1000*60)+"";
-        }else {
-            min=time/(1000*60)+"";
-        }
-        if (sec.length()==4){
-            sec="0"+(time%(1000*60))+"";
-        }else if (sec.length()==3){
-            sec="00"+(time%(1000*60))+"";
-        }else if (sec.length()==2){
-            sec="000"+(time%(1000*60))+"";
-        }else if (sec.length()==1){
-            sec="0000"+(time%(1000*60))+"";
-        }
-        return min+":"+sec.trim().substring(0,2);
+//        String min=time/(1000*60)+"";
+//        String sec=time%(1000*60)+"";
+//        if (min.length()<1){
+//            min="0"+time/(1000*60)+"";
+//        }else {
+//            min=time/(1000*60)+"";
+//        }
+//        if (sec.length()==4){
+//            sec="0"+(time%(1000*60))+"";
+//        }else if (sec.length()==3){
+//            sec="00"+(time%(1000*60))+"";
+//        }else if (sec.length()==2){
+//            sec="000"+(time%(1000*60))+"";
+//        }else if (sec.length()==1){
+//            sec="0000"+(time%(1000*60))+"";
+//        }
+//
+//        return min+":"+sec.trim().substring(0,2);
+
+        SimpleDateFormat format=new SimpleDateFormat("mm:ss");
+
+        format.setTimeZone(TimeZone.getTimeZone("GMT+00:00"));
+
+        return format.format(time);
     }
 
     //搜索获取音乐

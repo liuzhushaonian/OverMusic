@@ -71,8 +71,7 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
         setContentView(R.layout.activity_main);
         presenter=new MainPresenter(MainActivity.this);
         getComponent();
-        Intent intent=new Intent(MainActivity.this, PlayService.class);
-        startService(intent);
+
         reginst();
     }
 

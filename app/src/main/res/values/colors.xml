@@ -26,4 +26,5 @@
     <color name="colorYellow">#ffeb3b</color>
     <color name="colorAmber">#ffc107</color>
     <color name="colorDeepOrange">#ff5722</color>
+    <color name="colorTransparent">#00000000</color>
 </resources>

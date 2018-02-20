@@ -19,4 +19,10 @@
 
     </style>
 
+    <style name="BottomStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--<item name="windowNoTitle">true</item>-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+
+    </style>
+
 </resources>

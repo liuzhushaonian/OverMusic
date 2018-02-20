@@ -1,15 +1,11 @@
 package com.app.legend.overmusic.adapter;
 
-import android.app.Activity;
+
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.bean.Album;
@@ -22,14 +18,11 @@ import com.app.legend.overmusic.event.SettingRingToneEvent;
 import com.app.legend.overmusic.fragment.AlbumInfoFragment;
 import com.app.legend.overmusic.fragment.ArtistInfoFragment;
 import com.app.legend.overmusic.utils.ImageLoader;
-import com.app.legend.overmusic.utils.Mp3Util;
 import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import io.reactivex.disposables.Disposable;
 
 
@@ -49,6 +42,7 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
     public static final int ARTIST_MUSIC=0x0000300;
     public static final int LIST_MUSIC=0x0000400;
     public static final int SEARCH_LIST_MUSIC=0x0000500;
+    public static final int BOTTOM=0x0000600;
 
 
 
@@ -256,7 +250,7 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
                     //设为铃声
                     break;
                 case R.id.next_play:
-                    PlayHelper.create().addNextMusic(music);
+//                    PlayHelper.create().addNextMusic(music);
                     //设为下一曲播放
                     break;
                 case R.id.see_artist:

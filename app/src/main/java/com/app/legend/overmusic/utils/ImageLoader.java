@@ -49,6 +49,12 @@ public class ImageLoader {
 
     static Context context;
 
+    private boolean scroll=false;
+
+    public void setScroll(boolean scroll) {
+        this.scroll = scroll;
+    }
+
     public static final int SMALL=1000;
     public static final int ALBUM=2000;
     public static final int BIG=3000;
@@ -409,6 +415,7 @@ public class ImageLoader {
     }
 
     public void setAlbumInfoBook(int id,ImageView imageView, int type, int width, int height){
+
 
         Runnable runnable=()->{
 

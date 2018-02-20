@@ -4,10 +4,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.app.legend.overmusic.bean.Music;
+import com.app.legend.overmusic.event.BigPagerChangeEvent;
 import com.app.legend.overmusic.event.ListStatusEvent;
 import com.app.legend.overmusic.event.PagerChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayListChangeEvent;
+import com.app.legend.overmusic.event.PlayingMusicChangeEvent;
 import com.app.legend.overmusic.interfaces.IHelper;
 import com.app.legend.overmusic.service.PlayService;
 import java.util.ArrayList;
@@ -60,6 +62,10 @@ public class PlayHelper {
         return playHelper;
     }
 
+    /**
+     * 播放
+     * @param music
+     */
     private void play(Music music){
         if (music==null){
             Log.w("playhelper-->>","##the music is null!");
@@ -71,7 +77,9 @@ public class PlayHelper {
         this.current_music=music;
         playService.playMusic(music);
 
-        playStatusChange(PLAY);
+        playStatusChange(PLAY);//通知改变播放按钮
+        playingMusicChange();//通知改变播放音乐
+
 
 //        Log.d("playing-position---->>>",position+"");
 
@@ -93,6 +101,7 @@ public class PlayHelper {
         play(music);//通知播放
 
         this.position=position;
+        this.nor_position=position;//记录
 
         updateList(list);//更新播放列表
 
@@ -213,6 +222,11 @@ public class PlayHelper {
      * @param status 模式
      */
     public void setStatus(PlayStatus status){
+
+        if (this.status.equals(status)){
+            return;
+        }
+
         this.status=status;
 //        if (status.equals(PlayStatus.SINGLE)){
 //            playService.single(true);
@@ -223,11 +237,15 @@ public class PlayHelper {
         if (status.equals(PlayStatus.RANDOM)){
             initRandomList();
         }else {
+
+
             if (nor_position>=0){
                 position=nor_position;
-            }else {
-                position=0;
             }
+
+//            else {
+//                position=0;
+//            }
 
             initNormalList();
         }
@@ -295,6 +313,10 @@ public class PlayHelper {
             normalList.add(i);
         }
 
+        if (nor_position>=0){
+            position=normalList.get(nor_position);
+        }
+
         changePager(position,normalList);
 
         canScroll(true);
@@ -328,16 +350,9 @@ public class PlayHelper {
 
         Collections.shuffle(randomList);
 
-        //将正在播放的歌曲放入到队列第一个
-//        if (randomList.contains(position)){
-//            randomList.remove(position);
             randomList.add(0,position);
             nor_position=position;//备份position
             position=0;//还原position
-
-//        Log.d("size--->>",playingMusicList.get(randomList.get(0)).getSongName()+"");
-
-//        }
 
         changePager(position,randomList);
 
@@ -422,6 +437,7 @@ public class PlayHelper {
     private void changePager(int position,List<Integer> integers){
 
         RxBus.getDefault().post(new PagerChangeEvent(position,integers));
+        RxBus.getDefault().post(new BigPagerChangeEvent(position,integers));
     }
 
     //是否允许ViewPager进行滑动
@@ -441,6 +457,10 @@ public class PlayHelper {
 
         RxBus.getDefault().post(new ListStatusEvent(pre_music,current_music));
 
+    }
+
+    private void playingMusicChange(){
+        RxBus.getDefault().post(new PlayingMusicChangeEvent(this.current_music));
     }
 
     public boolean isPlaying(){
@@ -489,6 +509,20 @@ public class PlayHelper {
 //            }
 
             initNormalList();
+        }
+    }
+
+    /**
+     * 获取当前播放列表下标
+     * @return
+     */
+    public List<Integer> getCurrentList(){
+        switch (status) {
+            case RANDOM:
+                return randomList;
+            default:
+                return normalList;
+
         }
     }
 }

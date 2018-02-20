@@ -12,10 +12,13 @@ import android.widget.ImageView;
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.activity.MainActivity;
 import com.app.legend.overmusic.adapter.PlayingBarAdapter;
+import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.interfaces.IPlayBarPresenter;
 import com.app.legend.overmusic.presenter.PlayBarPresenter;
 import com.app.legend.overmusic.utils.MusicViewPager;
 import com.app.legend.overmusic.utils.PlayHelper;
+import com.app.legend.overmusic.utils.RoundProgressBar;
+
 import java.util.List;
 
 
@@ -29,10 +32,11 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
     PlayingBarAdapter adapter;
     PlayBarPresenter presenter;
     ImageView play_bar_button;
-    int lastValue=-1;
-    int pre_position=-1;
+    int pre_position=-1;//记录当前position，也为记录上次的position，判断滑动是向左还是向右
 
     boolean isScroll=true;
+
+    private RoundProgressBar progressBar;
 
     public PlayBarFragment() {
         // Required empty public constructor
@@ -57,6 +61,8 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
 
         play_bar_button=view.findViewById(R.id.play_bar_button);
 
+        progressBar=view.findViewById(R.id.playing_bar_progress);
+
         play_bar_button.setOnClickListener(v -> {
             if (PlayHelper.create().isPlaying()){
                 PlayHelper.create().pause();
@@ -76,7 +82,17 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    //设置当前position，记录当前position
     @Override
     public void setCurrentPager(int position) {
         isScroll=false;
@@ -85,6 +101,7 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
 //        adapter.notifyDataSetChanged();
     }
 
+    //设置list数据，记录当前position
     @Override
     public void setDataList(List<Integer> integerList) {
 //        adapter=null;
@@ -104,11 +121,13 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
 //        }
     }
 
+    //是否允许滑动
     @Override
     public void setScroll(boolean scroll) {
         viewPager.setScroll(scroll);
     }
 
+    //改变按钮状态
     @Override
     public void setStatus(int status) {
 
@@ -130,6 +149,12 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
         }
 
     }
+
+    @Override
+    public void setProgress(int progress) {
+        this.progressBar.setProgress(progress);
+    }
+
 
     //ViewPager滑动事件
     //上一首或下一首
@@ -167,6 +192,13 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
         });
     }
 
+    private void autoChangeView(){
+        if (PlayHelper.create().isPlaying()){
+            play_bar_button.setImageResource(R.drawable.ic_pause_black_24dp);
+        }else {
+            play_bar_button.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+        }
+    }
 
 
 
