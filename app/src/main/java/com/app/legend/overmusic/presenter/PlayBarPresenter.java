@@ -4,6 +4,7 @@ package com.app.legend.overmusic.presenter;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.AutoPagerEvent;
 import com.app.legend.overmusic.event.PagerChangeEvent;
+import com.app.legend.overmusic.event.PagerNotifyChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayListChangeEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
@@ -67,6 +68,11 @@ public class PlayBarPresenter {
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(playPositionEvent -> {
             changePosition(playPositionEvent.getPosition());
 
+        });
+
+        RxBus.getDefault().tObservable(PagerNotifyChangeEvent.class).subscribe(pagerNotifyChangeEvent -> {
+
+            playBarFragment.changePager();
         });
     }
 

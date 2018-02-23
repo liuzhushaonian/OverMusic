@@ -7,6 +7,7 @@ import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.BigPagerChangeEvent;
 import com.app.legend.overmusic.event.ListStatusEvent;
 import com.app.legend.overmusic.event.PagerChangeEvent;
+import com.app.legend.overmusic.event.PagerNotifyChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayListChangeEvent;
 import com.app.legend.overmusic.event.PlayingMusicChangeEvent;
@@ -36,7 +37,7 @@ public class PlayHelper {
 
     private List<Integer> normalList;
 
-    private int position=-1,nor_position=-2;
+    private int position=-1,nor_position=-2,true_position=-1;
 
     private Music current_music;
 
@@ -61,6 +62,21 @@ public class PlayHelper {
     public static PlayHelper create(){
         return playHelper;
     }
+
+
+    /**
+     * 提供通知按钮播放与暂停
+     */
+    public void playOrPause(){
+
+        if (isPlaying()){
+            pause();
+        }else {
+            start();
+        }
+    }
+
+
 
     /**
      * 播放
@@ -101,12 +117,20 @@ public class PlayHelper {
         play(music);//通知播放
 
         this.position=position;
-        this.nor_position=position;//记录
 
         updateList(list);//更新播放列表
 
+        getMusicByPosition(position);
+
 //        changePager(position,music);//通知
 
+    }
+
+    //仅提供播放页面的播放列表点击播放
+    public void playMusicByClickPlayingList(Music music,int position){
+
+        play(music);
+        this.position=position;
     }
 
     public void pause(){
@@ -127,7 +151,7 @@ public class PlayHelper {
             position--;
         }
 
-        Music music=getNextMusic(position);
+        Music music=getMusicByPosition(position);
 
         play(music);
 
@@ -153,9 +177,19 @@ public class PlayHelper {
 
     //手动播放下一首
     private void next(){
+
+        int limit=-1;
+
+        if (this.status.equals(PlayStatus.RANDOM)){
+            limit=this.randomList.size();
+        }else {
+            limit=this.normalList.size();
+        }
+
+
         switch (status){
             case CIRCULATION:
-                if (position+1>=playingMusicList.size()){
+                if (position+1>=limit){
                     position=0;
                 }else {
                     position++;
@@ -163,17 +197,18 @@ public class PlayHelper {
 
                 break;
             default:
-                if (position+1>=playingMusicList.size()){
+                if (position+1>=limit){
 
                     stop();
                     return;
                 }else {
                     position++;
                 }
+
                 break;
         }
 
-        Music music=getNextMusic(position);
+        Music music=getMusicByPosition(position);
         play(music);
 
     }
@@ -215,6 +250,8 @@ public class PlayHelper {
         }else {
             changePager(position,normalList);
         }
+
+
     }
 
     /**
@@ -227,28 +264,27 @@ public class PlayHelper {
             return;
         }
 
-        this.status=status;
-//        if (status.equals(PlayStatus.SINGLE)){
-//            playService.single(true);
-//        }else {
-//            playService.single(false);
-//        }
+        boolean resume=false;
 
-        if (status.equals(PlayStatus.RANDOM)){
-            initRandomList();
+        if (this.status.equals(PlayStatus.RANDOM)){
+            resume=true;
         }else {
-
-
-            if (nor_position>=0){
-                position=nor_position;
-            }
-
-//            else {
-//                position=0;
-//            }
-
-            initNormalList();
+            resume=false;
         }
+
+        this.status=status;
+
+        if (resume){
+            true_position=randomList.get(position);//恢复正常
+
+            resumeNormalList();
+            //切换到非随机
+        }else if (this.status.equals(PlayStatus.RANDOM)){
+
+            resumeRandomList();
+            //切换到随机
+        }
+
     }
 
     /**
@@ -260,34 +296,34 @@ public class PlayHelper {
     private void updateList(List<Music> musicList){
 
 
+        //直接复制一个，不要引用
         if (playingMusicList==null){
 
-            this.playingMusicList=musicList;
+            this.playingMusicList=new ArrayList<>();
 
-//            initNormalList();
-//            changeList(playingMusicList);
+            this.playingMusicList.addAll(musicList);
 
-            //通知
-//            changePlayList(playingMusicList);
         }else if (!this.playingMusicList.equals(musicList)){
 
-            this.playingMusicList=musicList;
-//            initNormalList();
-//            changeList(playingMusicList);
+            this.playingMusicList=new ArrayList<>();
 
-//            if (status.equals(PlayStatus.RANDOM)){
-//                initRandomList();
-//            }
-            //通知
-//            changePlayList(playingMusicList);
+            this.playingMusicList.addAll(musicList);
+
         }
+
+
 
         //无论列表是否发生变化，只要点击过列表进行播放，则对随机数组再次初始化
         if (status.equals(PlayStatus.RANDOM)){
             initRandomList();
+
         }else {
             initNormalList();
+
         }
+
+
+
     }
 
     /**
@@ -296,50 +332,42 @@ public class PlayHelper {
      */
     private void initNormalList(){
 
-        //恢复普通模式
-//        if (normalList!=null&&normalList.size()==playingMusicList.size()){
-//            changePager(position,normalList);
-//
-//            Log.d("resume---->>","恢复！！");
-//
-//            return;
-//        }
-
         //重新传入playlist后重新实例化
-        canScroll(false);
+//        canScroll(false);
 
         normalList=new ArrayList<>();
         for (int i=0;i<playingMusicList.size();i++){
             normalList.add(i);
         }
 
-        if (nor_position>=0){
-            position=normalList.get(nor_position);
-        }
-
         changePager(position,normalList);
 
-        canScroll(true);
-//        changePlayList(normalList);
+//        canScroll(true);
+
+        Log.d("position--->>",position+"");
+
     }
 
-//    //通知adapter播放列表改变
-//    private void changePlayList(List<Integer> integers){
-//
-//        RxBus.getDefault().post(new PlayListEvent(integers));
-//    }
+    /**
+     * 恢复普通列表
+     */
+    private void resumeNormalList(){
+        if (true_position>=0) {
+            this.position = true_position;
 
-//    private void changeList(List<Music> musicList){
-//        RxBus.getDefault().post(new PlayListEvent(musicList));
-//    }
+        }
+
+        changePager(this.position,normalList);
+
+    }
+
 
     //初始化randomList
     //randomList负责记录播放列表下标
     //完成后传给pager以改变pager状态
     private void initRandomList(){
 
-        canScroll(false);
-
+//        canScroll(false);
         randomList=new ArrayList<>();
 
         for (int i=0;i<playingMusicList.size();i++){
@@ -350,33 +378,67 @@ public class PlayHelper {
 
         Collections.shuffle(randomList);
 
-            randomList.add(0,position);
-            nor_position=position;//备份position
-            position=0;//还原position
+
+        randomList.add(0, position);
+        position = 0;//还原position
 
         changePager(position,randomList);
 
-        canScroll(true);
+//        canScroll(true);
 //        changePlayList(randomList);
 
     }
 
+    /**
+     * 恢复随机列表
+     */
+    private void resumeRandomList(){
+        randomList=new ArrayList<>();
+
+        for (int i=0;i<playingMusicList.size();i++){
+            if (i!=true_position) {
+                randomList.add(i);
+            }
+        }
+
+        Collections.shuffle(randomList);
+
+        this.randomList.add(0,true_position);
+
+        this.position=0;
+
+        Log.d("true--->>",normalList.get(true_position)+"");
+
+        Log.d("randomlist-->>",randomList.get(0)+"");
+
+        changePager(position,randomList);
+
+    }
+
+
     public Music getPagerMusic(int position){
         Music music;
 
+        int p=-1;
+
         switch (status){
             case RANDOM:
-                music=getCurrentMusic(getRandom(position));
+                p=getRandom(position);
+
+                music=getCurrentMusic(p);
 
                 break;
             default:
-                music=getCurrentMusic(position);
+                p=this.normalList.get(position);
+
+                music=getCurrentMusic(p);
                 break;
         }
 
         return music;
 
     }
+
 
     private int getRandom(int p){
 
@@ -414,7 +476,7 @@ public class PlayHelper {
         return current_music;
     }
 
-    private Music getNextMusic(int position){
+    private Music getMusicByPosition(int position){
 
         Music music;
 
@@ -422,11 +484,11 @@ public class PlayHelper {
             case RANDOM:
 
                 int p=randomList.get(position);
-                nor_position=p;//记住当前播放歌曲的真正下标，以便恢复
+                true_position=p;//记住当前播放歌曲的真正下标，以便恢复
                 music=playingMusicList.get(p);
                 break;
             default:
-
+                true_position=position;
                 music=playingMusicList.get(position);
                 break;
         }
@@ -479,38 +541,116 @@ public class PlayHelper {
             return;
         }
 
+        /**
+         * 先判断当前列表是否存在music实例，若是已存在，则在相关列表添加坐标，若是不存在，则将这个music实例添加到列表，然后再获取坐标并设置到相关列表。
+         * 机智如我😎
+         */
+        int p=-1;
+
+        if (this.playingMusicList.contains(music)){
+
+            //已存在实例
+            p=this.playingMusicList.indexOf(music);
+        }else {
+            //不存在实例
+
+            this.playingMusicList.add(music);
+
+            p=this.playingMusicList.size()-1;
+
+        }
 
 
         if (this.status.equals(PlayStatus.RANDOM)){//仅在randomlist里添加真实下标，不改变random状态
 
-            int position=this.nor_position;
+            this.randomList.add(position+1,p);
 
-            this.playingMusicList.add(position+1,music);
-
-            int random_positon=this.randomList.indexOf(position);//获取歌曲真实下标
-//            Log.d("ran--->>",random_positon+"");
-            this.randomList.add(random_positon+1,position+1);
-            changePager(random_positon,randomList);//改变pager
+            changePager(position,this.randomList);
         }else {
-            int position=this.position;
 
-            this.playingMusicList.add(position+1,music);
-
-            this.normalList.add(position+1,position+1);
-
-//            Log.d("position--->>",this.position+"");
-
-
-//            for (int i=position+2;i<this.normalList.size();i++){
-//                int p=this.normalList.get(i);
-//                p++;
-//                this.normalList.remove(i);
-//                this.normalList.add(i,p);
-//            }
-
-            initNormalList();
+            this.normalList.add(position+1,p);
+            changePager(position,this.normalList);
         }
+
     }
+
+    /**
+     * 删除音乐
+     * @param position
+     */
+    public void deleteMusicPosition(int position){
+
+        int p=-1;
+
+        if (this.status.equals(PlayStatus.RANDOM)){
+
+            p=this.randomList.get(position);
+        }else {
+            p=this.normalList.get(position);
+        }
+
+        if (this.normalList!=null&&this.normalList.contains(p)){
+
+            this.normalList.remove(p);
+
+        }
+
+        if (this.randomList!=null&&this.randomList.contains(p)){
+            this.randomList.remove(p);
+
+        }
+
+        if (position<this.position){
+
+            this.position--;
+
+        }else if (position==this.position){
+
+            stop();
+
+            if (this.status.equals(PlayStatus.RANDOM)){
+                if (this.position+1<this.randomList.size()){
+                    this.position++;
+                }else if (this.position-1>0){
+                    this.position--;
+                }else {
+
+                    //列表为空
+                    this.position=0;
+                }
+
+
+            }else {
+
+                if (this.position+1<this.normalList.size()){
+                    this.position++;
+                }else if (this.position-1>0){
+                    this.position--;
+                }else {
+
+                    //列表为空
+                    this.position=0;
+                }
+
+
+            }
+
+
+
+        }
+
+        RxBus.getDefault().post(new PagerNotifyChangeEvent(10));
+
+//        if (status.equals(PlayStatus.RANDOM)){
+//            changePager(this.position,this.randomList);
+//        }else {
+//            changePager(this.position,this.normalList);
+//        }
+
+
+
+    }
+
 
     /**
      * 获取当前播放列表下标
@@ -519,10 +659,13 @@ public class PlayHelper {
     public List<Integer> getCurrentList(){
         switch (status) {
             case RANDOM:
+
                 return randomList;
             default:
                 return normalList;
 
         }
     }
+
+
 }

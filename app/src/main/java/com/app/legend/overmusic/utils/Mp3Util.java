@@ -71,14 +71,6 @@ public class Mp3Util {
                 music.setUrl(uri);
                 music.setId(_id);
                 mp3InfoArrayList.add(music);
-//                mp3Info.setSongName(title);
-//                mp3Info.setAlbumId(albumsId);
-//                mp3Info.setAlbumName(albums);
-//                mp3Info.setArtistId(artistId);
-//                mp3Info.setArtist(artist);
-//                mp3Info.setTime(duration);
-//                mp3Info.setUrl(uri);
-//                mp3InfoArrayList.add(mp3Info);
             }
         }
         cursor.close();
@@ -112,11 +104,6 @@ public class Mp3Util {
      */
     public List<Album> getAlbumList(){
         List<Album> list=getAlbumSet();
-
-
-//        for (Album album:stringList){
-//            Log.d("name--->>",album.getAlbum_name()+"");
-//        }
 
         return list;
     }
@@ -208,74 +195,6 @@ public class Mp3Util {
 
     }
 
-    private <T>List<T> getList(Class<T> tClass){
-
-        Cursor cursor = OverApplication.getContext().getContentResolver().query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
-                MediaStore.Audio.Media.DURATION + ">=18000", null,
-                MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-
-
-        List<T> list=new ArrayList<>();
-
-        Set<T> set=new HashSet<>();
-
-        if (tClass.equals(Album.class)){
-
-            assert cursor!=null;
-            for (int i=0;i<cursor.getCount();i++){
-                cursor.moveToNext();
-                String albums=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                int albumsId=cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-                int isMusic=cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
-                String artist=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                if (isMusic!=0){
-
-                    Album album=new Album();
-                    album.setAlbum_name(albums);
-                    album.setId(albumsId);
-                    album.setArtist(artist);
-
-                    set.add((T) album);
-
-                    Log.d("id0---->>",albumsId+"");
-                    if(!list.contains((T)album)) {
-                        list.add((T) album);
-                    }
-
-                }
-
-            }
-
-
-        }else if (tClass.equals(Artist.class)){
-
-            assert cursor!=null;
-            for (int i=0;i<cursor.getCount();i++){
-                cursor.moveToNext();
-                String artist=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                long artistId=cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
-                int isMusic=cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
-                String albums=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                if (isMusic!=0){
-                    Artist artist1=new Artist();
-                    artist1.setId(artistId);
-                    artist1.setName(artist);
-                    artist1.setAlbum(albums);
-
-
-                    if (!list.contains(artist1)) {
-                        list.add((T) artist1);
-                    }
-                }
-            }
-        }
-
-        assert cursor != null;
-        cursor.close();
-
-        return list;
-    }
 
     //根据album的id获取相关music
     public List<Music> getAlbumMusic(Album album){

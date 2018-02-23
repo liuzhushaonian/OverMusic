@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <application
         android:name=".utils.OverApplication"
@@ -14,9 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/OverMusicTheme">
-        <activity android:name=".activity.MainActivity"
-            android:launchMode="singleTask"
-            >
+        <activity
+            android:name=".activity.MainActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,11 +31,10 @@
             android:exported="true" />
 
         <activity android:name=".activity.PlayingActivity" />
-        <activity android:name=".activity.SearchActivity"
-            android:windowSoftInputMode="adjustPan"
-            >
-
-        </activity>
+        <activity
+            android:name=".activity.SearchActivity"
+            android:windowSoftInputMode="adjustPan"></activity>
+        <activity android:name=".activity.ColorActivity"></activity>
     </application>
 
 </manifest>

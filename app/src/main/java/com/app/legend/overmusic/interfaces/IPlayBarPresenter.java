@@ -21,5 +21,6 @@ public interface IPlayBarPresenter {
 
     void setProgress(int progress);
 
+    void changePager();
 
 }

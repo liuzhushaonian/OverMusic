@@ -5,9 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,25 +14,21 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.adapter.SingleAdapter;
 import com.app.legend.overmusic.bean.Album;
 import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
-import com.app.legend.overmusic.bean.PlayList;
 import com.app.legend.overmusic.event.AddAlbumMusicToListEvent;
 import com.app.legend.overmusic.event.AddArtistMusicToList;
 import com.app.legend.overmusic.event.AddFragmentEvent;
 import com.app.legend.overmusic.event.AddMusicToListEvent;
-import com.app.legend.overmusic.event.RenamePlayListEvent;
 import com.app.legend.overmusic.fragment.AlbumFragment;
 import com.app.legend.overmusic.fragment.AlbumInfoFragment;
 import com.app.legend.overmusic.fragment.ArtistFragment;
@@ -42,13 +37,9 @@ import com.app.legend.overmusic.fragment.MusicFragment;
 import com.app.legend.overmusic.fragment.PlayListFragment;
 import com.app.legend.overmusic.interfaces.IMainPresenter;
 import com.app.legend.overmusic.presenter.MainPresenter;
-import com.app.legend.overmusic.service.PlayService;
 import com.app.legend.overmusic.utils.RxBus;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-
 import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends BaseActivity implements IMainPresenter{
@@ -64,6 +55,8 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
     Disposable disposable,music_dis,album_dis,artist_dis;
     PlayListFragment playListFragment;
 
+    private NavigationView navigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,26 +66,16 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
         getComponent();
 
         reginst();
+
+        searchInfo(getIntent());
+
+        leftMenuClick();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        if (disposable!=null&&!disposable.isDisposed()){
-//            disposable.dispose();
-//        }
-//
-//        if (music_dis!=null&&!music_dis.isDisposed()){
-//            music_dis.dispose();
-//        }
-//
-//        if (album_dis!=null&&!album_dis.isDisposed()){
-//            album_dis.dispose();
-//        }
-//
-//        if (artist_dis!=null&&!artist_dis.isDisposed()){
-//            artist_dis.dispose();
-//        }
+
         dispose(disposable);
         dispose(music_dis);
         dispose(album_dis);
@@ -129,6 +112,7 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
         bottom_layout=findViewById(R.id.bottom_layout);
         linearLayout=findViewById(R.id.linearLayout);
         frameLayout=findViewById(R.id.fragment_container);
+        navigationView=findViewById(R.id.left_menu);
     }
 
     private void initTab(){
@@ -343,18 +327,26 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
 
     }
 
+    /**
+     * d打开相关页面
+     * @param intent
+     */
     private void searchInfo(Intent intent){
         Artist artist= (Artist) intent.getSerializableExtra("artist");
         Album album= (Album) intent.getSerializableExtra("album");
         if (artist!=null){
-            Log.d("info1--->>","artist");
+
             toArtistFragment(artist);
         }else if (album!=null){
-            Log.d("info2--->>","album");
+
             toAlbumFragment(album);
         }
     }
 
+    /**
+     * 打开artist页面
+     * @param artist
+     */
     private void toArtistFragment(Artist artist){
 
         ArtistInfoFragment fragment=new ArtistInfoFragment();
@@ -364,6 +356,10 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
         addFragment(fragment);
     }
 
+    /**
+     * 打开album页面
+     * @param album
+     */
     private void toAlbumFragment(Album album){
         AlbumInfoFragment fragment=new AlbumInfoFragment();
         Bundle bundle=new Bundle();
@@ -372,6 +368,63 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
         addFragment(fragment);
     }
 
+
+    private void showLeftMenu(){
+
+        navigationView.showContextMenu();
+    }
+
+    private void hideLeftMenu(){
+
+    }
+
+    private void leftMenuClick(){
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch (item.getItemId()){
+                    case R.id.change_color:
+
+                        startColorActivity();
+                        break;
+                    case R.id.scan:
+
+
+                        break;
+                    case R.id.clean:
+
+
+                        break;
+                    case R.id.upgrade:
+
+
+                        break;
+                    case R.id.about_me:
+
+
+                        break;
+                    case R.id.about_app:
+                        break;
+
+
+
+
+                }
+
+
+
+                return true;
+            }
+        });
+    }
+
+    private void startColorActivity(){
+
+        Intent intent=new Intent(MainActivity.this,ColorActivity.class);
+        startActivity(intent);
+    }
 
 
 }

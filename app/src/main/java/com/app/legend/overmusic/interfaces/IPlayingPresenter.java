@@ -1,5 +1,7 @@
 package com.app.legend.overmusic.interfaces;
 
+import com.app.legend.overmusic.bean.Album;
+import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.utils.PlayStatus;
 
@@ -22,5 +24,11 @@ public interface IPlayingPresenter {
     void setPlayProgress(int position,long progress);
 
     void openBottomSheetMenu();
+
+    void startActivityForArtist(Artist artist);
+
+    void startActivityForAlbum(Album album);
+
+    void changeViewPager();
 
 }

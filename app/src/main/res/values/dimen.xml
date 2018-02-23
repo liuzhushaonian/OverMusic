@@ -26,4 +26,8 @@
     <dimen name="bottom_padding">8dp</dimen>
 
     <dimen name="bottom_dialog_radius">5dp</dimen>
+
+    <dimen name="notification_padding">8dp</dimen>
+
+    <dimen name="notification_big_book">100dp</dimen>
 </resources>

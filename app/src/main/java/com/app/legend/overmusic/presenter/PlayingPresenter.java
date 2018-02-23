@@ -2,12 +2,21 @@ package com.app.legend.overmusic.presenter;
 
 
 
+import android.util.Log;
+
+import com.app.legend.overmusic.bean.Album;
+import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.BigPagerChangeEvent;
 import com.app.legend.overmusic.event.GetProgressEvent;
+import com.app.legend.overmusic.event.OpenAlbumFragmentEvent;
+import com.app.legend.overmusic.event.OpenArtistFragmentEvent;
+import com.app.legend.overmusic.event.PagerNotifyChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
 import com.app.legend.overmusic.event.PlayingMusicChangeEvent;
+import com.app.legend.overmusic.event.SearchAlbumEvent;
+import com.app.legend.overmusic.event.SearchArtistEvent;
 import com.app.legend.overmusic.interfaces.IPlayingPresenter;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
@@ -22,7 +31,7 @@ import io.reactivex.disposables.Disposable;
 
 public class PlayingPresenter{
     private IPlayingPresenter activity;
-    private Disposable pagerChange,status_dis,playing_dis,progress_dis,getProgress_dis;
+    private Disposable pagerChange,status_dis,playing_dis,getProgress_dis,artist_dis,album_dis,pager_dis;
 
     public PlayingPresenter(IPlayingPresenter activity) {
         this.activity = activity;
@@ -54,18 +63,23 @@ public class PlayingPresenter{
             setMusic(playingMusicChangeEvent.getMusic());
         });
 
-        progress_dis=RxBus.getDefault().tObservable(Integer.class)
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(playPositionEvent -> {
-
-//                    Log.d("ppp--->>",playPositionEvent.getPosition()+"");
-//            setProgress(playPositionEvent);
-        });
-
         getProgress_dis=RxBus.getDefault().tObservable(PlayPositionEvent.class).observeOn(AndroidSchedulers.mainThread()).subscribe(playPositionEvent -> {
             setProgress(playPositionEvent.getPosition(),playPositionEvent.getProgress());
 
         });
 
+        artist_dis=RxBus.getDefault().tObservable(OpenArtistFragmentEvent.class).subscribe(openArtistFragmentEvent -> {
+            startActivityForArtist(openArtistFragmentEvent.getArtist());
+        });
+
+        album_dis=RxBus.getDefault().tObservable(OpenAlbumFragmentEvent.class).subscribe(openAlbumFragmentEvent -> {
+            startActivityForAlbum(openAlbumFragmentEvent.getAlbum());
+        });
+
+        pager_dis=RxBus.getDefault().tObservable(PagerNotifyChangeEvent.class).subscribe(pagerNotifyChangeEvent -> {
+
+            activity.changeViewPager();
+        });
 
     }
 
@@ -79,11 +93,14 @@ public class PlayingPresenter{
         unregister(pagerChange);
         unregister(status_dis);
         unregister(playing_dis);
-        unregister(progress_dis);
+        unregister(artist_dis);
+        unregister(album_dis);
+        unregister(getProgress_dis);
     }
 
     private void setData(List<Integer> integers){
         if (this.activity!=null){
+
             activity.setData(integers);
         }
     }
@@ -132,6 +149,14 @@ public class PlayingPresenter{
 
     public void getProgress(){
         RxBus.getDefault().post(new GetProgressEvent(1));
+    }
+
+    private void startActivityForArtist(Artist artist){
+        activity.startActivityForArtist(artist);
+    }
+
+    private void startActivityForAlbum(Album album){
+        activity.startActivityForAlbum(album);
     }
 
 }

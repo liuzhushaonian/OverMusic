@@ -26,6 +26,8 @@ import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.adapter.MusicAdapter;
 import com.app.legend.overmusic.adapter.MusicListAdapter;
 import com.app.legend.overmusic.adapter.PlayAlbumAdapter;
+import com.app.legend.overmusic.bean.Album;
+import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.AutoPagerEvent;
 import com.app.legend.overmusic.event.SeekEvent;
@@ -184,14 +186,10 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
 
                     if (position > pre_position) {
 
-                        Log.d("tag--->>","下一曲");
-
                         //向左,下一曲
                         PlayHelper.create().pagerToNext();
                     } else if (position < pre_position) {
                         //向右，上一曲
-
-                        Log.d("tag--->>","上一曲");
 
                         PlayHelper.create().pagerToPrevious();
                     }
@@ -389,7 +387,6 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
 
         }
 
-
         bottomSheetDialog.show();
 
     }
@@ -438,6 +435,7 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -466,4 +464,29 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
 
         return super.onTouchEvent(event);
     }
+
+
+
+    @Override
+    public void startActivityForArtist(Artist artist){
+
+        Intent intent=new Intent(PlayingActivity.this,MainActivity.class);
+        intent.putExtra("artist",artist);
+        startActivity(intent);
+
+    }
+
+    @Override
+    public void startActivityForAlbum(Album album){
+        Intent intent=new Intent(PlayingActivity.this,MainActivity.class);
+        intent.putExtra("album",album);
+        startActivity(intent);
+    }
+
+    @Override
+    public void changeViewPager() {
+        this.albumAdapter.notifyDataSetChanged();
+    }
+
+
 }

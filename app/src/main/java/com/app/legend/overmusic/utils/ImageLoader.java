@@ -428,7 +428,7 @@ public class ImageLoader {
 
             Result result=new Result(type,width,height,bitmap,imageView);
 
-            handler.obtainMessage(100,result).sendToTarget();
+            handler.obtainMessage(200,result).sendToTarget();
 
         };
 
@@ -444,28 +444,75 @@ public class ImageLoader {
 
     }
 
+    public Bitmap getSizeBitmap(int id,int w,int h){
+
+        String url=getAlbumArt(id);
+        Bitmap bitmap=BitmapFactory.decodeFile(url);
+        if (bitmap!=null) {
+            bitmap = Bitmap.createScaledBitmap(bitmap, w, h, false);
+        }
+        return bitmap;
+
+    }
+
     private Handler handler=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            Result result= (Result) msg.obj;
-            Bitmap bitmap=result.getBitmap();
+            int action=msg.what;
 
-            if (bitmap!=null){
-                result.getImageView().setImageBitmap(bitmap);
-            }else {
+            switch (action){
+                case 100:
+                    Result result= (Result) msg.obj;
+                    Bitmap bitmap=result.getBitmap();
 
-                ImageView imageView=result.getImageView();
-//                int type=result.getType();
-//                if (type==ALBUM){
-//
-//                    int spad=OverApplication.getContext().getResources().getDimensionPixelSize(R.dimen.default_space);
-//                    imageView.setPadding(spad,spad,spad,spad);
-//                }
+                    if (bitmap!=null){
+                        result.getImageView().setImageBitmap(bitmap);
+                    }else {
 
-                imageView.setImageResource(R.drawable.ic_music_note_black_24dp);
+                        ImageView imageView=result.getImageView();
+
+                        if (result.getType()==BIG){
+
+                            imageView.setImageResource(R.drawable.ic_audiotrack_black_150dp);
+
+                        }else {
+
+                            imageView.setImageResource(R.drawable.ic_audiotrack_black_24dp);
+
+                        }
+                    }
+
+                    break;
+                case 200:
+
+                    Result result2= (Result) msg.obj;
+                    Bitmap bitmap2=result2.getBitmap();
+
+                    if (bitmap2!=null){
+                        result2.getImageView().setImageBitmap(bitmap2);
+                    }else {
+
+                        ImageView imageView=result2.getImageView();
+
+                        imageView.setImageResource(R.drawable.ic_audiotrack_black_100dp);
+                    }
+
+                    break;
             }
+
+//            Result result= (Result) msg.obj;
+//            Bitmap bitmap=result.getBitmap();
+//
+//            if (bitmap!=null){
+//                result.getImageView().setImageBitmap(bitmap);
+//            }else {
+//
+//                ImageView imageView=result.getImageView();
+//
+//                imageView.setImageResource(R.drawable.ic_audiotrack_black_24dp);
+//            }
         }
     };
 

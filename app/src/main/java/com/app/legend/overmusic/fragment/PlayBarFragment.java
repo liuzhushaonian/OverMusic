@@ -155,6 +155,11 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
         this.progressBar.setProgress(progress);
     }
 
+    @Override
+    public void changePager() {
+        adapter.notifyDataSetChanged();
+    }
+
 
     //ViewPager滑动事件
     //上一首或下一首

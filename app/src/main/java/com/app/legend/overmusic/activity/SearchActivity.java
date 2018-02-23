@@ -208,6 +208,7 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
         album_dis=RxBus.getDefault().tObservable(SearchAlbumEvent.class).subscribe(searchAlbumEvent -> {
            startActivityForAlbum(searchAlbumEvent.getAlbum());
         });
+
     }
 
     private void unregister(Disposable disposable){

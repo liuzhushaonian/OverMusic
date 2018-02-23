@@ -1,23 +1,37 @@
 package com.app.legend.overmusic.service;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.RemoteViews;
 
+import com.app.legend.overmusic.R;
+import com.app.legend.overmusic.activity.MainActivity;
 import com.app.legend.overmusic.bean.Music;
+import com.app.legend.overmusic.broadcast.PlayingBroadcast;
 import com.app.legend.overmusic.event.GetProgressEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
 import com.app.legend.overmusic.event.SeekEvent;
 import com.app.legend.overmusic.interfaces.IHelper;
 import com.app.legend.overmusic.interfaces.OnChangeSeekLinstener;
+import com.app.legend.overmusic.utils.ImageLoader;
 import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
@@ -48,25 +62,11 @@ public class PlayService extends Service implements IHelper{
     MediaPlayer mediaPlayer;
     private Disposable seek_dis,get_dis;
     private Timer timer;
+    private static final String CHANNEL_ID="OVER_MUSIC";
 
-    private static final int CPU_COUNT=Runtime.getRuntime().availableProcessors();
-    private static final int CORE_POOL_SIZE=CPU_COUNT+1;
-    private static final int MAXNUM_POOL_SIZE=CPU_COUNT*2+1;
-    private static final long KEEP_ALIVE=10L;
-
-    private static final ThreadFactory mThreadFactory=new ThreadFactory() {
-        private final AtomicInteger count=new AtomicInteger(1);
-        @Override
-        public Thread newThread(@NonNull Runnable runnable) {
-            return new Thread(runnable,"PlayService#"+count.getAndIncrement());
-        }
-    };
-
-    private static final Executor threadPool=new ThreadPoolExecutor(
-            CORE_POOL_SIZE,MAXNUM_POOL_SIZE,KEEP_ALIVE, TimeUnit.SECONDS,
-            new LinkedBlockingDeque<Runnable>(),mThreadFactory);
-
-
+    private PlayingBroadcast playingBroadcast;
+    private Notification notification;
+    private NotificationChannel notificationChannel;
 
 
 
@@ -87,6 +87,15 @@ public class PlayService extends Service implements IHelper{
         mediaPlayer.setOnPreparedListener(mp -> {
             start();
             startTimer(PlayHelper.create().getCurrent_music());
+
+            if (this.notification==null) {
+                startNotification();//打开前台通知
+                changePlayStatus();//改变通知按钮
+            }
+
+
+            changeNotification(PlayHelper.create().getCurrent_music());//改变通知内容
+
         });
 
         PlayHelper.newInstance(PlayService.this);
@@ -94,6 +103,18 @@ public class PlayService extends Service implements IHelper{
         mediaPlayer.setOnCompletionListener(mp -> PlayHelper.create().autoNext());
 
         register();
+
+        this.playingBroadcast=new PlayingBroadcast();
+
+        IntentFilter intentFilter=new IntentFilter();
+        intentFilter.addAction(PlayingBroadcast.NEXT);
+        intentFilter.addAction(PlayingBroadcast.PLAY);
+        intentFilter.addAction(PlayingBroadcast.PAUSE);
+        intentFilter.addAction(PlayingBroadcast.PREVIOUS);
+
+        registerReceiver(this.playingBroadcast,intentFilter);
+
+
     }
 
 
@@ -107,6 +128,13 @@ public class PlayService extends Service implements IHelper{
 
         unregister(seek_dis);
         unregister(get_dis);
+        if (this.playingBroadcast!=null) {
+            unregisterReceiver(this.playingBroadcast);
+        }
+
+        if (this.notification!=null){
+            stopNotification(true);
+        }
     }
 
     @Override
@@ -124,6 +152,9 @@ public class PlayService extends Service implements IHelper{
             return;
         }
         mediaPlayer.start();
+
+        changePlayStatus();
+
     }
 
     //暂停
@@ -132,30 +163,26 @@ public class PlayService extends Service implements IHelper{
             return;
         }
         mediaPlayer.pause();
+        changePlayStatus();
     }
 
-    private void play(Music music){
+    private void play(Music music) {
 
-        if (mediaPlayer!=null){
+        if (mediaPlayer != null) {
             cancalTimer();
 
             mediaPlayer.stop();
             mediaPlayer.reset();
 
-//            Runnable runnable= () -> {
-                try {
-//                    cancalTimer();
+            try {
 
-//                    mediaPlayer.setDataSource(OverApplication.getContext(), Uri.parse(music.getUrl()));
-                    mediaPlayer.setDataSource(music.getUrl());
-                    mediaPlayer.prepareAsync();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                mediaPlayer.setDataSource(music.getUrl());
+                mediaPlayer.prepareAsync();
 
-//            };
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-//            threadPool.execute(runnable);
         }
     }
 
@@ -173,6 +200,7 @@ public class PlayService extends Service implements IHelper{
     public void stop() {
         if (mediaPlayer!=null){
             mediaPlayer.stop();
+            stopNotification(false);
         }
     }
 
@@ -257,5 +285,156 @@ public class PlayService extends Service implements IHelper{
         }
     }
 
+    private RemoteViews getNotificationView(int res){
 
+        return new RemoteViews(this.getPackageName(),res);
+
+    }
+
+    private PendingIntent getPendingIntentForBroadcast(Intent intent){
+
+        return PendingIntent.getBroadcast(this,0,intent,0);
+    }
+
+    private void startNotification(){
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            CharSequence sequence="over_music_notification_channel";
+            this.notificationChannel=new NotificationChannel(CHANNEL_ID,sequence,NotificationManager.IMPORTANCE_MIN);
+            this.notificationChannel.setShowBadge(false);
+            this.notificationChannel.setLockscreenVisibility(0);
+            this.notificationChannel.setSound(null,null);
+
+            NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            assert notificationManager != null;
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        NotificationCompat.Builder builder=new NotificationCompat.Builder(PlayService.this,CHANNEL_ID);
+
+        RemoteViews remoteBigViews=getNotificationView(R.layout.big_notification);
+
+        RemoteViews remoteSmallViews=getNotificationView(R.layout.small_notification);
+
+
+        /**
+         * 上一曲
+         */
+        Intent pre_intent=new Intent(PlayingBroadcast.PREVIOUS);
+        PendingIntent pre_pendingIntent=getPendingIntentForBroadcast(pre_intent);
+        remoteBigViews.setOnClickPendingIntent(R.id.notification_previous,pre_pendingIntent);
+        remoteSmallViews.setOnClickPendingIntent(R.id.small_notification_previous,pre_pendingIntent);
+
+
+        /**
+         * 下一曲
+         */
+        Intent next_intent=new Intent(PlayingBroadcast.NEXT);
+        PendingIntent next_pendingIntent=getPendingIntentForBroadcast(next_intent);
+        remoteBigViews.setOnClickPendingIntent(R.id.notification_next,next_pendingIntent);
+        remoteSmallViews.setOnClickPendingIntent(R.id.small_notification_next,next_pendingIntent);
+
+        /**
+         * 播放or暂停
+         */
+        Intent action_intent=new Intent(PlayingBroadcast.PLAY);
+        PendingIntent action_pendingIntent=getPendingIntentForBroadcast(action_intent);
+        remoteBigViews.setOnClickPendingIntent(R.id.notification_play,action_pendingIntent);
+        remoteSmallViews.setOnClickPendingIntent(R.id.small_notification_play,action_pendingIntent);
+
+
+        builder.setCustomContentView(remoteSmallViews);
+        builder.setCustomBigContentView(remoteBigViews);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        this.notification=builder
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.drawable.ic_album_black_24dp)
+                .setContentIntent(pendingIntent)
+                .setChannelId(CHANNEL_ID)
+                .build();
+
+        startForeground(110, notification);
+
+    }
+
+    /**
+     * 改变通知
+     * @param music
+     */
+    private void changeNotification(Music music){
+
+        if (this.notification==null){
+            return;
+        }
+
+
+        this.notification.bigContentView.setTextViewText(R.id.notification_song,music.getSongName());
+        this.notification.contentView.setTextViewText(R.id.small_notification_song,music.getSongName());
+
+        String info=music.getArtistName()+" | "+music.getAlbumName();
+
+        this.notification.bigContentView.setTextViewText(R.id.notification_info,info);
+        this.notification.contentView.setTextViewText(R.id.small_notification_info,info);
+
+        int w=getResources().getDimensionPixelSize(R.dimen.notification_big_book);
+
+        Bitmap bitmap= ImageLoader.getImageLoader(getApplicationContext()).getSizeBitmap(music.getAlbumId(),w,w);
+
+        if (bitmap!=null) {
+            this.notification.bigContentView.setImageViewBitmap(R.id.notification_album_book, bitmap);
+
+            this.notification.contentView.setImageViewBitmap(R.id.small_notification_album_book, bitmap);
+        }else {
+
+            this.notification.bigContentView.setImageViewResource(R.id.notification_album_book,R.drawable.ic_audiotrack_black_24dp);
+            this.notification.contentView.setImageViewResource(R.id.small_notification_album_book, R.drawable.ic_audiotrack_black_24dp);
+
+        }
+
+        NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        assert notificationManager != null;
+
+
+
+        notificationManager.notify(110,this.notification);
+
+    }
+
+    //停止前台通知
+    //同时可以取消通知
+    private void stopNotification(boolean remove){
+        stopForeground(remove);
+    }
+
+    private void changePlayStatus(){
+
+        if (this.notification==null){
+            return;
+        }
+
+        if (mediaPlayer!=null&&mediaPlayer.isPlaying()) {
+            this.notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_pause_black_24dp);
+            this.notification.contentView.setImageViewResource(R.id.small_notification_play,R.drawable.ic_pause_black_24dp);
+
+            startForeground(110,this.notification);
+        }else {
+            this.notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_arrow_black_24dp);
+            this.notification.contentView.setImageViewResource(R.id.small_notification_play,R.drawable.ic_play_arrow_black_24dp);
+            stopNotification(false);
+        }
+
+        NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (notificationManager!=null) {
+
+            notificationManager.notify(110, this.notification);
+        }
+
+    }
 }

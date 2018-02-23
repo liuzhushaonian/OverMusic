@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
+import android.view.View;
 
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.fragment.PlayingAlumFragment;
@@ -23,17 +25,18 @@ public class PlayAlbumAdapter extends FragmentStatePagerAdapter {
 
     public void setPositionList(List<Integer> positionList) {
 
-        PlayStatus status=PlayHelper.create().getStatus();
-        if (status.equals(PlayStatus.RANDOM)) {
-
-            this.positionList = positionList;
-        }else if (this.positionList==null){
-
-            this.positionList=positionList;
-        }else if (!this.positionList.equals(positionList)){
-
-            this.positionList=positionList;
-        }
+//        PlayStatus status=PlayHelper.create().getStatus();
+//        if (status.equals(PlayStatus.RANDOM)) {
+//
+//            this.positionList = positionList;
+//        }else if (this.positionList==null){
+//
+//            this.positionList=positionList;
+//        }else if (!this.positionList.equals(positionList)){
+//
+//            this.positionList=positionList;
+//        }
+        this.positionList=positionList;
 
         notifyDataSetChanged();
     }
@@ -66,4 +69,14 @@ public class PlayAlbumAdapter extends FragmentStatePagerAdapter {
 
         return 0;
     }
+
+//    @Override
+//    public boolean isViewFromObject(View view, Object object) {
+//        return (view==object);
+//    }
+//
+//    @Override
+//    public int getItemPosition(Object object) {
+//        return POSITION_NONE;
+//    }
 }

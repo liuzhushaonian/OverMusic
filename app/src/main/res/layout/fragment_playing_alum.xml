@@ -9,8 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/play_album_book"
-        android:src="@drawable/ic_music_note_black_24dp"
+        android:src="@drawable/ic_audiotrack_black_150dp"
         android:background="@color/colorCyan"
+        android:scaleType="center"
         />
 
 </FrameLayout>

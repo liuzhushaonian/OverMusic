@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.bean.Music;
@@ -35,6 +36,10 @@ public class PlayingAlumFragment extends Fragment {
         View view=inflater.inflate(R.layout.fragment_playing_alum, container, false);
         getComponent(view);
         setData();
+
+        view.setOnClickListener(v -> {
+            Toast.makeText(getContext(),""+this.music.getSongName(),Toast.LENGTH_SHORT).show();
+        });
         return view;
     }
 
@@ -49,7 +54,6 @@ public class PlayingAlumFragment extends Fragment {
 
         Log.d("music---->>",music.getSongName());
         int w=getResources().getDisplayMetrics().widthPixels;
-        ImageLoader.getImageLoader(getContext()).setScroll(false);
         ImageLoader.getImageLoader(getContext()).setAlbum(this.music,this.imageView,ImageLoader.BIG,w,w);
 
     }

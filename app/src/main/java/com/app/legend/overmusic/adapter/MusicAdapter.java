@@ -240,7 +240,7 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
                     break;
                 case R.id.music_add_to_list:
 
-//                    addMusicToList(music);
+                    addMusicToList(music);
                     //添加至列表
                     break;
 
@@ -250,7 +250,7 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
                     //设为铃声
                     break;
                 case R.id.next_play:
-//                    PlayHelper.create().addNextMusic(music);
+                    PlayHelper.create().addNextMusic(music);
                     //设为下一曲播放
                     break;
                 case R.id.see_artist:
