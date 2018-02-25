@@ -18,6 +18,15 @@ public class Music implements Serializable{
     private String artistName;
     private int playStatus=-1;
     private long id;
+    private int position;
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
 
     public long getId() {
         return id;
