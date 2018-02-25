@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
@@ -31,6 +32,7 @@ import com.app.legend.overmusic.event.PlayPositionEvent;
 import com.app.legend.overmusic.event.SeekEvent;
 import com.app.legend.overmusic.interfaces.IHelper;
 import com.app.legend.overmusic.interfaces.OnChangeSeekLinstener;
+import com.app.legend.overmusic.utils.ColorUtil;
 import com.app.legend.overmusic.utils.ImageLoader;
 import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
@@ -56,7 +58,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static java.lang.Thread.sleep;
 
-public class PlayService extends Service implements IHelper{
+public class PlayService extends Service implements IHelper,AudioManager.OnAudioFocusChangeListener{
 
 
     MediaPlayer mediaPlayer;
@@ -68,6 +70,32 @@ public class PlayService extends Service implements IHelper{
     private Notification notification;
     private NotificationChannel notificationChannel;
 
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+
+        switch (focusChange){
+            case AudioManager.AUDIOFOCUS_GAIN://已获得音频焦点
+                if (mediaPlayer!=null){
+                    PlayHelper.create().start();
+                }
+
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS://失去音频焦点
+                PlayHelper.create().pause();
+
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT://临时失去焦点
+                PlayHelper.create().pause();
+
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK://临时失去焦点，但允许低音量播放
+                if (mediaPlayer!=null&&mediaPlayer.isPlaying()){
+                    mediaPlayer.setVolume(0.1f,0.1f);//把声音调低
+
+                }
+                break;
+        }
+    }
 
 
     public class PlayBind extends Binder {
@@ -152,7 +180,7 @@ public class PlayService extends Service implements IHelper{
             return;
         }
         mediaPlayer.start();
-
+        turnUpVolume();//渐渐提升音量
         changePlayStatus();
 
     }
@@ -162,6 +190,7 @@ public class PlayService extends Service implements IHelper{
         if (mediaPlayer==null){
             return;
         }
+
         mediaPlayer.pause();
         changePlayStatus();
     }
@@ -193,7 +222,8 @@ public class PlayService extends Service implements IHelper{
 
     @Override
     public void pauseMusic() {
-        pause();
+//        pause();
+        turnDownVolume();
     }
 
     @Override
@@ -386,9 +416,22 @@ public class PlayService extends Service implements IHelper{
         Bitmap bitmap= ImageLoader.getImageLoader(getApplicationContext()).getSizeBitmap(music.getAlbumId(),w,w);
 
         if (bitmap!=null) {
+
+            int defaultValue=getResources().getColor(R.color.colorBlueGrey);
+
+            int d=OverApplication.getContext().getSharedPreferences("over_music_shared",MODE_PRIVATE).getInt("color",defaultValue);
+
+            int color= ColorUtil.getColor(bitmap,d);
+
+            this.notification.bigContentView.setTextColor(R.id.notification_song,color);
+            this.notification.bigContentView.setTextColor(R.id.notification_info,color);
             this.notification.bigContentView.setImageViewBitmap(R.id.notification_album_book, bitmap);
 
+
             this.notification.contentView.setImageViewBitmap(R.id.small_notification_album_book, bitmap);
+            this.notification.contentView.setTextColor(R.id.small_notification_song,color);
+            this.notification.contentView.setTextColor(R.id.small_notification_info,color);
+
         }else {
 
             this.notification.bigContentView.setImageViewResource(R.id.notification_album_book,R.drawable.ic_audiotrack_black_24dp);
@@ -437,4 +480,85 @@ public class PlayService extends Service implements IHelper{
         }
 
     }
+
+
+    /**
+     * 实现渐入渐出
+     */
+    private void turnDownVolume(){
+
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+
+                boolean adjustVolume=false;
+
+                float v=1.0f;
+
+                while (!adjustVolume){
+
+                    try {
+                        sleep(100);
+
+                        v-=0.1;
+
+                        mediaPlayer.setVolume(v,v);
+
+                        if (v<=0){
+                            adjustVolume=true;
+                            pause();
+                            mediaPlayer.setVolume(1,1);//恢复正常音量
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }.start();
+
+    }
+
+    private void turnUpVolume(){
+
+
+
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+
+                float v=0;
+
+                boolean turn=false;
+
+                mediaPlayer.setVolume(0,0);//开始播放
+
+                while (!turn){
+
+                    try {
+                        sleep(100);
+                        v+=0.1;
+
+
+                        mediaPlayer.setVolume(v,v);
+
+                        if (v>=1){
+                            turn=true;
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }.start();
+    }
+
+
+
+
 }

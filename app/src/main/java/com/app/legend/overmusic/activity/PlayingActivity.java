@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -61,7 +62,8 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
     private boolean trackSeek=false;
     private int seek_progress=0;
     private TextView start,end;
-
+    private LinearLayout bg;
+    private CardView controller_view;
 
 
 
@@ -92,6 +94,21 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
 
     }
 
+    @Override
+    protected void setThemeColor() {
+        this.toolbar.setBackgroundColor(getThemeColor());
+        this.controller_view.setCardBackgroundColor(getThemeColor());
+//        this.controller_view.getBackground().setAlpha(50);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        setThemeColor();
+
+    }
+
     private void getComponent(){
         toolbar=findViewById(R.id.playing_toolbar);
         viewPager=findViewById(R.id.playing_album_book);
@@ -103,6 +120,8 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         playList=findViewById(R.id.play_list);
         start=findViewById(R.id.start_time);
         end=findViewById(R.id.end_time);
+        bg=findViewById(R.id.playing_bg);
+        controller_view=findViewById(R.id.controller_view);
 
 
         addClickListener(previous);

@@ -2,21 +2,35 @@ package com.app.legend.overmusic.presenter;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.bean.Album;
 import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.bean.PlayList;
 import com.app.legend.overmusic.interfaces.IMainPresenter;
 import com.app.legend.overmusic.utils.Database;
+import com.app.legend.overmusic.utils.ImageLoader;
 import com.app.legend.overmusic.utils.Mp3Util;
 import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +48,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainPresenter {
     private IMainPresenter mainActivity;
+    private static final String IMAGE_PATH = Environment.getExternalStorageDirectory().
+            getAbsolutePath() + "/OverMusic/image_bg";
 
     public MainPresenter(IMainPresenter mainActivity) {
         this.mainActivity = mainActivity;
@@ -298,6 +314,10 @@ public class MainPresenter {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(music -> {
+                    if (music.isEmpty()){
+                        return;
+                    }
+
                     PlayHelper.create().playAndUpdate(music.get(0),music,0);
                 });
     }
@@ -342,6 +362,117 @@ public class MainPresenter {
                 });
     }
 
+
+    public void scanMusic(){
+        Observable
+                .create((ObservableOnSubscribe<Integer>) e -> {
+                    Mp3Util.newInstance().scanMusic();
+                    e.onNext(1);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(integer -> {
+                    Toast.makeText(OverApplication.getContext(),"扫描完成！",Toast.LENGTH_SHORT).show();
+                    mainActivity.initPager();
+                });
+    }
+
+    public void cleanCache(){
+
+        Observable
+                .create((ObservableOnSubscribe<Integer>) e -> {
+                    ImageLoader.getImageLoader(OverApplication.getContext()).clean();
+                    e.onNext(2);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(integer -> {
+                    Toast.makeText(OverApplication.getContext(),"清理成功",Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    public void aboutDeveloper(Activity activity){
+
+        final AlertDialog.Builder builder=new AlertDialog.Builder(activity);
+
+        String info=activity.getResources().getString(R.string.string_about_me);
+        String contain=activity.getResources().getString(R.string.string_about_me_contain);
+        LayoutInflater inflater=LayoutInflater.from(activity);
+
+        View view=inflater.inflate(R.layout.about_layout,null,false);
+        TextView textView=view.findViewById(R.id.about_text);
+
+        textView.setText(contain);
+
+        builder.setMessage(info).setView(view).create().show();
+
+    }
+
+    public void aboutApp(Activity activity){
+
+        final AlertDialog.Builder builder=new AlertDialog.Builder(activity);
+
+        String info=activity.getResources().getString(R.string.string_about_app_info);
+        String contain=activity.getResources().getString(R.string.string_about_app_contain);
+        LayoutInflater inflater=LayoutInflater.from(activity);
+
+        View view=inflater.inflate(R.layout.about_layout,null,false);
+        TextView textView=view.findViewById(R.id.about_text);
+
+        textView.setText(contain);
+
+        builder.setMessage(info).setView(view).create().show();
+    }
+
+
+    public void saveAndSetImage(Uri uri, ImageView imageView){
+
+        Observable
+                .create((ObservableOnSubscribe<Bitmap>) e -> {
+                    Bitmap bitmap=getBitmap(uri);
+
+                    if (bitmap!=null){
+                        saveBitmap(bitmap);
+                        e.onNext(bitmap);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(imageView::setImageBitmap);
+    }
+
+    private void saveBitmap(Bitmap bitmap){
+        FileOutputStream fileOutputStream=null;
+        try {
+            File file=new File(IMAGE_PATH);
+            if (!file.exists()){
+                file.mkdirs();
+            }
+            File file1=new File(file,"bg");
+            fileOutputStream=new FileOutputStream(file1);
+            bitmap.compress(Bitmap.CompressFormat.WEBP,100,fileOutputStream);
+            fileOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Bitmap getBitmap(Uri uri){
+
+
+        Bitmap bitmap=null;
+
+        if (uri==null){
+            return null;
+        }
+
+        try {
+            bitmap= BitmapFactory.decodeStream(OverApplication.getContext().getContentResolver().openInputStream(uri));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+    }
 
 
 

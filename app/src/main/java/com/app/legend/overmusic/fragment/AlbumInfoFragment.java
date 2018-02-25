@@ -58,7 +58,7 @@ public class AlbumInfoFragment extends BaseFragment implements IAlbumMusicPresen
         View view=inflater.inflate(R.layout.fragment_album_info, container, false);
         recyclerView=view.findViewById(R.id.album_info_recycler_view);
         toolbar=view.findViewById(R.id.album_info_toolbar);
-        ((MainActivity)getActivity()).addToolbar(toolbar);
+//        ((MainActivity)getActivity()).addToolbar(toolbar);
         nestedScrollView=view.findViewById(R.id.nested_scroll_view);
 //        album_book=view.findViewById(R.id.album_info_book);
         bg=view.findViewById(R.id.bg);
@@ -77,6 +77,14 @@ public class AlbumInfoFragment extends BaseFragment implements IAlbumMusicPresen
         initToolbar();
         initBook();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        this.toolbar.setBackgroundColor(getThemeColor());
+        toolbar.getBackground().setAlpha(16);
     }
 
     private void getAlbum(){

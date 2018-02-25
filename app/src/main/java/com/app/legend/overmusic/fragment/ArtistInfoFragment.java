@@ -67,6 +67,13 @@ public class ArtistInfoFragment extends BaseFragment implements IArtistMusicPres
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.toolbar.setBackgroundColor(getThemeColor());
+        toolbar.getBackground().setAlpha(16);
+    }
+
     private void getArtist(){
         Bundle bundle=getArguments();
         this.artist= (Artist) bundle.getSerializable(TAG);

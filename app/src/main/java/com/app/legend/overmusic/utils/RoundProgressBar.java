@@ -94,4 +94,9 @@ public class RoundProgressBar extends View {
 
         postInvalidate();
     }
+
+    public void setRoundProgressColor(int roundProgressColor) {
+        this.roundProgressColor = roundProgressColor;
+        postInvalidate();
+    }
 }

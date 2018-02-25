@@ -8,4 +8,6 @@ package com.app.legend.overmusic.interfaces;
 public interface IMainPresenter {
 
     void changePlayListData();
+
+    void initPager();
 }

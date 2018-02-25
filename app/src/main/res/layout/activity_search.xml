@@ -8,6 +8,7 @@
     tools:context="com.app.legend.overmusic.activity.SearchActivity"
     android:fitsSystemWindows="true"
     android:background="@color/colorBlue"
+    android:id="@+id/search_bg_container"
     >
     <LinearLayout
         android:layout_width="match_parent"

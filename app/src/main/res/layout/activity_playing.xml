@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-
+        android:id="@+id/playing_bg"
         >
 
 
@@ -43,10 +43,11 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorGrey"
-        android:padding="@dimen/controller_padding"
         android:layout_margin="@dimen/controller_margin"
         app:cardCornerRadius="@dimen/cardview_default_elevation"
+        android:id="@+id/controller_view"
+        app:contentPadding="@dimen/controller_padding"
+        android:elevation="@dimen/controller_padding"
         >
 
 
@@ -55,7 +56,8 @@
             android:layout_height="match_parent"
             android:background="@color/colorAlphaBlack"
             android:elevation="@dimen/controller_padding"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            >
 
             <RelativeLayout
                 android:layout_width="match_parent"

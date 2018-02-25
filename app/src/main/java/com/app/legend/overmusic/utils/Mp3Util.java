@@ -87,6 +87,12 @@ public class Mp3Util {
         return mp3Util;
     }
 
+    public void scanMusic(){
+        getMp3InfoArrayList(OverApplication.getContext());
+
+
+    }
+
     public List<Music> getAllMusic(Context context){
 
 

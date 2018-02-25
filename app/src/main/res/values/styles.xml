@@ -27,6 +27,8 @@
 
     <style name="Buttom">
         <item name="android:background">@drawable/select_theme</item>
+        <item name="android:tint">@color/colorPurple</item>
+
     </style>
 
 </resources>

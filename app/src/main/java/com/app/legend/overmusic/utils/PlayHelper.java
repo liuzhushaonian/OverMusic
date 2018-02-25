@@ -114,6 +114,8 @@ public class PlayHelper {
             return;
         }
 
+
+
         play(music);//通知播放
 
         this.position=position;
@@ -129,8 +131,14 @@ public class PlayHelper {
     //仅提供播放页面的播放列表点击播放
     public void playMusicByClickPlayingList(Music music,int position){
 
-        play(music);
+//        play(music);
+        play(getMusicByPosition(position));
         this.position=position;
+
+        Log.d("list----->>>",""+getCurrentList().size());
+        Log.d("position---->>>",position+"");
+
+        changePager(position,getCurrentList());
     }
 
     public void pause(){
@@ -180,11 +188,13 @@ public class PlayHelper {
 
         int limit=-1;
 
-        if (this.status.equals(PlayStatus.RANDOM)){
-            limit=this.randomList.size();
-        }else {
-            limit=this.normalList.size();
-        }
+//        if (this.status.equals(PlayStatus.RANDOM)){
+//            limit=this.randomList.size();
+//        }else {
+//            limit=this.normalList.size();
+//        }
+
+        limit=getCurrentList().size();
 
 
         switch (status){
@@ -488,10 +498,13 @@ public class PlayHelper {
                 music=playingMusicList.get(p);
                 break;
             default:
-                true_position=position;
-                music=playingMusicList.get(position);
+
+                int q=normalList.get(position);
+                true_position=q;
+                music=playingMusicList.get(q);
                 break;
         }
+
         return music;
     }
 

@@ -62,6 +62,13 @@ public class PlayListInfoFragment extends BaseFragment implements IPlayListInfoP
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.toolbar.setBackgroundColor(getThemeColor());
+        toolbar.getBackground().setAlpha(16);
+    }
+
     private void getComponent(View view){
         recyclerView=view.findViewById(R.id.play_list_info_list);
         toolbar=view.findViewById(R.id.play_list_info_toolbar);

@@ -13,10 +13,11 @@
         android:title="@string/string_play_all"
         android:id="@+id/play_all"
         />
-    <item
-        android:title="@string/string_queue"
-        android:id="@+id/list_queue"
-        />
+
+    <!--<item-->
+        <!--android:title="@string/string_queue"-->
+        <!--android:id="@+id/list_queue"-->
+        <!--/>-->
 
     <item
         android:title="@string/string_new_list"

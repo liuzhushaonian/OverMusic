@@ -17,6 +17,8 @@ import com.app.legend.overmusic.activity.PlayingActivity;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.utils.ImageLoader;
 
+import io.reactivex.Observable;
+
 /**
  * 播放条，在主页面进行播放后，底部所显示的内容
  * A simple {@link Fragment} subclass.
@@ -30,6 +32,8 @@ public class PlayBarPagerFragment extends BaseFragment {
     private TextView song,info;
 
     public static final String TAG="music";
+    private static final int FAST_CLICK_DELAY=1000;
+    private long lastClickTime= 0L;
 
 
     public Music getPlaying_music() {
@@ -73,11 +77,18 @@ public class PlayBarPagerFragment extends BaseFragment {
         view.setOnClickListener(v-> {
             //打开播放页面
 
+            if (System.currentTimeMillis()-lastClickTime<=FAST_CLICK_DELAY){
+                return;
+            }
+
+            lastClickTime=System.currentTimeMillis();
+
             Intent intent=new Intent(getContext(), PlayingActivity.class);
             intent.putExtra("music",playing_music);
 
             getActivity().startActivity(intent);
         });
+
         return view;
     }
 

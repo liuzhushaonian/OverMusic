@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.legend.overmusic.R;
@@ -45,6 +46,7 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
     private SearchPresenter presenter;
     private Disposable query_dis,artist_dis,album_dis;
     private TextView textView;
+    private RelativeLayout bg_container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,12 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        setThemeColor();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         unregister(query_dis);
@@ -77,6 +85,7 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
         toolbar =findViewById(R.id.search_toolbar);
         fragment_container=findViewById(R.id.search_fragment_container);
         searchView=findViewById(R.id.search_view);
+        bg_container=findViewById(R.id.search_bg_container);
     }
 
     private void initToolbar(){
@@ -215,6 +224,12 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
         if (disposable!=null&&!disposable.isDisposed()){
             disposable.dispose();
         }
+    }
+
+    @Override
+    protected void setThemeColor() {
+        this.toolbar.setBackgroundColor(getThemeColor());
+        this.bg_container.setBackgroundColor(getThemeColor());
     }
 
     public void startActivityForArtist(Artist artist){

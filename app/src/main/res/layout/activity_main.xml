@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.app.legend.overmusic.activity.MainActivity"
-
+    android:id="@+id/draw_layout"
     >
 
     <!--保证弹出输入法后布局不变-->

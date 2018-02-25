@@ -40,6 +40,20 @@ public class ColorActivity extends BaseActivity implements IColorPresenter{
         itemClick();
     }
 
+    @Override
+    protected void setThemeColor() {
+        rippleView.setBackgroundColor(getThemeColor());
+    }
+
+    /**
+     * 恢复状态
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setThemeColor();
+    }
+
     private void getComponent(){
 
         recyclerView=findViewById(R.id.color_list);
@@ -94,10 +108,13 @@ public class ColorActivity extends BaseActivity implements IColorPresenter{
 
             int limit= (int) Math.sqrt(d);
 
-            Log.d("limit----->>",limit+"");
             rippleView.startRipper(x,y,color.getColor(),limit);
+
+            saveThemeColor(color.getColor());//保存颜色
         });
     }
+
+
 
 
 }

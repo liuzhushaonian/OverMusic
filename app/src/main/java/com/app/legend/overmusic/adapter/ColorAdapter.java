@@ -46,6 +46,7 @@ public class ColorAdapter extends BaseAdapter<ColorAdapter.ViewHolder> {
 
                 int position=viewHolder.getAdapterPosition();
                 Color color=colorList.get(position);
+                changeInfo(color);
                 listener.itemClick(v,color);
             }
         });
@@ -64,6 +65,7 @@ public class ColorAdapter extends BaseAdapter<ColorAdapter.ViewHolder> {
 
             if (color.getIs_use()==1){
                 holder.info.setVisibility(View.VISIBLE);
+                holder.info.setTextColor(color.getColor());
             }else {
                 holder.info.setVisibility(View.GONE);
             }
@@ -95,6 +97,21 @@ public class ColorAdapter extends BaseAdapter<ColorAdapter.ViewHolder> {
             this.textView=itemView.findViewById(R.id.color_name);
             this.info=itemView.findViewById(R.id.color_info);
         }
+    }
+
+
+    private void changeInfo(Color color){
+        for (Color c:colorList){
+            if (!c.equals(color)){
+                c.setIs_use(0);
+            }
+
+            if (c.equals(color)){
+                c.setIs_use(1);
+            }
+        }
+
+        notifyDataSetChanged();
     }
 
 

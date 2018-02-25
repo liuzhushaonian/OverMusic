@@ -13,12 +13,13 @@ import com.app.legend.overmusic.R;
 public class ColorUtil {
 
 
-    public static int getColor(Bitmap bitmap){
+    public static int getColor(Bitmap bitmap,int defaultColor){
 
         Palette palette=Palette.from(bitmap).generate();
 
-        int color=palette.getLightVibrantColor(OverApplication.getContext().getResources().getColor(R.color.colorAccent));
+        int color=palette.getLightVibrantColor(defaultColor);
 
         return color;
+
     }
 }

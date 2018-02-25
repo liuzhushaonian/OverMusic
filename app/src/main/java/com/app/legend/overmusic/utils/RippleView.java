@@ -15,6 +15,9 @@ import android.widget.LinearLayout;
 
 import com.app.legend.overmusic.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * Created by legend on 2018/2/22.
@@ -36,6 +39,8 @@ public class RippleView extends LinearLayout {
 
     private int limit=2000;
 
+    private List<ColorBean> colorBeanList;
+
 
     public RippleView(Context context) {
         super(context);
@@ -43,6 +48,7 @@ public class RippleView extends LinearLayout {
 
     public RippleView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        colorBeanList=new ArrayList<>();
 
     }
 
@@ -118,6 +124,9 @@ public class RippleView extends LinearLayout {
 
                     setBackgroundColor(color);
 
+                    continueRip();//执行下一个颜色的渲染
+
+                    popBean();
                     break;
             }
         }
@@ -126,9 +135,7 @@ public class RippleView extends LinearLayout {
     public void startRipper(float cx,float cy,int color,int limit){
 
         if (!stop){
-
-//            Log.d("stop---->>","it is not stop!!");
-
+            cacheRipEvent(cx,cy,color,limit);//添加到缓存
             return;
         }
 
@@ -149,6 +156,74 @@ public class RippleView extends LinearLayout {
 
 //        Log.d("limit--->>",limit+"");
         this.limit = limit;
+    }
+
+    /**
+     * 用于缓存渲染事件
+     */
+    private void cacheRipEvent(float cx,float cy,int color,int limit){
+        ColorBean bean=new ColorBean(cx,cy,color,limit);
+
+        this.colorBeanList.add(bean);
+
+    }
+
+    /**
+     * 继续执行事件
+     */
+    private void continueRip(){
+
+        if (this.colorBeanList!=null){
+            if (!colorBeanList.isEmpty()){
+
+                ColorBean colorBean=colorBeanList.get(0);
+                this.cx=colorBean.getCx();
+                this.cy=colorBean.getCy();
+                this.color=colorBean.getColor();
+                this.limit=colorBean.getLimit();
+                this.radius=0;
+                stop=false;
+                start();
+            }
+        }
+    }
+
+    private void popBean(){
+        if (this.colorBeanList!=null&&!this.colorBeanList.isEmpty()){
+            this.colorBeanList.remove(0);
+        }
+    }
+
+    class ColorBean{
+
+        private float cx,cy;
+        private int color;
+        private int limit;
+
+        public ColorBean(float cx, float cy, int color, int limit) {
+
+            this.cx = cx;
+            this.cy = cy;
+            this.color = color;
+            this.limit = limit;
+        }
+
+
+        public float getCx() {
+            return cx;
+        }
+
+        public float getCy() {
+            return cy;
+        }
+
+        public int getColor() {
+            return color;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
     }
 
 

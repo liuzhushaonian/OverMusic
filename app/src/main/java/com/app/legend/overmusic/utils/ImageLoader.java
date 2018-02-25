@@ -231,7 +231,6 @@ public class ImageLoader {
     }
 
 
-
     /**
      * 本地缓存
      * @param bitmap

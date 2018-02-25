@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:orientation="horizontal"
-    android:background="@color/colorGrey"
+    android:background="@color/colorWhite"
     >
 
     <ImageView
@@ -58,7 +58,7 @@
             android:orientation="horizontal"
             android:paddingStart="@dimen/default_space"
             android:paddingEnd="@dimen/default_space"
-
+            android:layout_gravity="end"
             >
 
             <ImageButton
@@ -68,6 +68,7 @@
                 android:scaleType="center"
                 android:id="@+id/notification_previous"
                 style="@style/Buttom"
+
                 />
 
             <ImageButton

@@ -10,6 +10,7 @@
         android:layout_height="match_parent"
         android:src="@drawable/bg"
         android:scaleType="centerCrop"
+        android:id="@+id/header_image"
         />
 
 </LinearLayout>

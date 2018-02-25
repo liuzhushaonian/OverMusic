@@ -1,10 +1,13 @@
 package com.app.legend.overmusic.fragment;
 
 
+import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +56,8 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_play_bar, container, false);
 
@@ -79,6 +84,9 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
 
         presenter=new PlayBarPresenter(this);
 
+
+
+
         return view;
     }
 
@@ -90,6 +98,22 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
     @Override
     public void onResume() {
         super.onResume();
+
+        int d=getResources().getColor(R.color.colorBlueGrey);
+        int color=getContext().getSharedPreferences("over_music_shared", Context.MODE_PRIVATE).getInt("color",d);
+        this.play_bar_button.setImageTintList(ColorStateList.valueOf(color));
+        progressBar.setRoundProgressColor(color);
+
+        resumeView();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (this.presenter!=null){
+            this.presenter.unregister();
+            this.presenter=null;
+        }
     }
 
     //设置当前position，记录当前position
@@ -202,6 +226,25 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
             play_bar_button.setImageResource(R.drawable.ic_pause_black_24dp);
         }else {
             play_bar_button.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+        }
+    }
+
+    private void resumeView(){
+
+        if (PlayHelper.create()!=null){
+
+            if (PlayHelper.create().getCurrent_music()!=null){
+
+                setDataList(PlayHelper.create().getCurrentList());
+
+                setCurrentPager(PlayHelper.create().getPosition());
+
+                autoChangeView();
+            }
+
+//            Log.d("tag---->>","iiii");
+        }else {
+//            Log.d("tag---->>","null!!!!!");
         }
     }
 

@@ -45,18 +45,20 @@ public class PlayBarPresenter {
         //传递正在播放的歌曲（从列表点击才需传递）
         pagerChange=RxBus.getDefault().tObservable(PagerChangeEvent.class).subscribe(pagerChangeEvent -> {
 
-            int position=pagerChangeEvent.getPosition();
-            List<Integer> integerList=pagerChangeEvent.getIntegerList();
-            playBarFragment.setDataList(integerList);
-            runToCurrentMusic(position);
-
-//            runToCurrentMusic(music,position);
+            if (notNull()) {
+                int position = pagerChangeEvent.getPosition();
+                List<Integer> integerList = pagerChangeEvent.getIntegerList();
+                playBarFragment.setDataList(integerList);
+                runToCurrentMusic(position);
+            }
 
         });
 
         playStatus=RxBus.getDefault().tObservable(PlayEvent.class).subscribe(playEvent -> {
            int status=playEvent.getStatus();
-            playBarFragment.setStatus(status);
+           if (notNull()) {
+               playBarFragment.setStatus(status);
+           }
         });
 
         autoPager=RxBus.getDefault().tObservable(AutoPagerEvent.class).subscribe(autoPagerEvent -> {
@@ -93,34 +95,27 @@ public class PlayBarPresenter {
         if (autoPager!=null&&!autoPager.isDisposed()){
             autoPager.isDisposed();
         }
+
+        if (this.playBarFragment!=null){
+            this.playBarFragment=null;
+        }
     }
 
     private void runToCurrentMusic(int position){
-//        PlayStatus status= PlayHelper.create().getStatus();
-//        switch (status){
-//            case RANDOM:
-//                playBarFragment.setCurrentPager(0);
-//                break;
-//            default:
-//
-//                Log.d("presenter--position-->>",position+"");
-        playBarFragment.setCurrentPager(position);
-//                break;
-//        }
+        if (notNull()) {
+            playBarFragment.setCurrentPager(position);
+        }
+
     }
 
     /**
      * 恢复时自动获取数据
      */
     public void getData(){
-        if (playBarFragment!=null){
+        if (notNull()){
             List<Integer> integerList= PlayHelper.create().getCurrentList();
             int position=PlayHelper.create().getPosition();
-
-
-
             playBarFragment.setDataList(integerList);
-
             runToCurrentMusic(position);
         }
 
@@ -129,13 +124,15 @@ public class PlayBarPresenter {
 
 
     private void changePosition(int progress){
-//        Music music=PlayHelper.create().getCurrent_music();
-//        float time=music.getTime()/1000;
-//
-//        int progress= (int) (500/time*position/1000);
 
-        playBarFragment.setProgress(progress);
+      if (notNull()) {
+            playBarFragment.setProgress(progress);
+        }
 
+    }
+
+    private boolean notNull(){
+        return this.playBarFragment!=null;
     }
 
 }
