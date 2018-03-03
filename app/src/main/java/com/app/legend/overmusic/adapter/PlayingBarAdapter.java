@@ -25,6 +25,14 @@ public class PlayingBarAdapter extends FragmentStatePagerAdapter{
 
 
     private List<Integer> playPositionList;
+    private List<Music> musicList;
+
+    public void setMusicList(List<Music> musicList) {
+
+        this.musicList = musicList;
+
+        notifyDataSetChanged();
+    }
 
     public PlayingBarAdapter(FragmentManager fm) {
         super(fm);
@@ -32,9 +40,9 @@ public class PlayingBarAdapter extends FragmentStatePagerAdapter{
 
     @Override
     public Fragment getItem(int position) {
-        if (playPositionList!=null){
+        if (musicList!=null){
 
-            Music music=PlayHelper.create().getPagerMusic(position);
+            Music music=musicList.get(position);
 
             PlayBarPagerFragment fragment=new PlayBarPagerFragment();
             Bundle bundle=new Bundle();
@@ -45,41 +53,25 @@ public class PlayingBarAdapter extends FragmentStatePagerAdapter{
 
             return fragment;
         }
+
         return null;
     }
 
     @Override
     public int getCount() {
-        if (playPositionList!=null){
+        if (musicList!=null){
 
-            return playPositionList.size();
+            return musicList.size();
         }
 
         return 0;
     }
 
-    public void setPlayPositionList(List<Integer> playPositionList) {
 
-
-
-        PlayStatus status=PlayHelper.create().getStatus();
-        if (status.equals(PlayStatus.RANDOM)) {
-
-            this.playPositionList = playPositionList;
-        }else if (this.playPositionList==null){
-
-            this.playPositionList=playPositionList;
-        }else if (!this.playPositionList.equals(playPositionList)){
-
-            this.playPositionList=playPositionList;
-        }
-        notifyDataSetChanged();
+    @Override
+    public int getItemPosition(Object object) {
+//        return super.getItemPosition(object);
+        return POSITION_NONE;
     }
-
-//    @Override
-//    public int getItemPosition(Object object) {
-////        return super.getItemPosition(object);
-//        return POSITION_NONE;
-//    }
 
 }

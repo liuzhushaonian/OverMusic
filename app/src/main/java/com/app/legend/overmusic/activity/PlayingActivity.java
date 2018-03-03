@@ -1,12 +1,10 @@
 package com.app.legend.overmusic.activity;
 
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.CardView;
@@ -19,12 +17,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import com.app.legend.overmusic.R;
-import com.app.legend.overmusic.adapter.MusicAdapter;
 import com.app.legend.overmusic.adapter.MusicListAdapter;
 import com.app.legend.overmusic.adapter.PlayAlbumAdapter;
 import com.app.legend.overmusic.bean.Album;
@@ -33,15 +28,12 @@ import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.AutoPagerEvent;
 import com.app.legend.overmusic.event.SeekEvent;
 import com.app.legend.overmusic.interfaces.IPlayingPresenter;
-import com.app.legend.overmusic.interfaces.OnChangeSeekLinstener;
 import com.app.legend.overmusic.presenter.PlayingPresenter;
-import com.app.legend.overmusic.service.PlayService;
 import com.app.legend.overmusic.utils.Mp3Util;
 import com.app.legend.overmusic.utils.MusicViewPager;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.PlayStatus;
 import com.app.legend.overmusic.utils.RxBus;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,6 +80,8 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
     protected void onDestroy() {
         super.onDestroy();
 
+        Log.d("desss-------->>>","destory!!!!!!!!!");
+
         if (presenter!=null){
             presenter.dis();
         }
@@ -97,8 +91,10 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void setThemeColor() {
         this.toolbar.setBackgroundColor(getThemeColor());
+        this.toolbar.getBackground().setAlpha(50);
         this.controller_view.setCardBackgroundColor(getThemeColor());
-//        this.controller_view.getBackground().setAlpha(50);
+
+        this.controller_view.getBackground().setAlpha(50);
     }
 
     @Override
@@ -189,7 +185,7 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
             finish();
         });
 
-
+        toolbar.getBackground().setAlpha(50);
     }
 
     private void initPager(){
@@ -285,9 +281,10 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
     }
 
     @Override
-    public void setData(List<Integer> positionList) {
-        albumAdapter.setPositionList(positionList);
-        albumAdapter.notifyDataSetChanged();
+    public void setData(List<Music> musicList) {
+//        albumAdapter.setPositionList(positionList);
+        albumAdapter.setMusicList(musicList);
+
     }
 
     @Override
@@ -310,6 +307,9 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
+    /**
+     * 获取正在播放的音乐后，开始渲染UI
+     */
     private void changeView(){
         if (this.music==null){
             return;
@@ -318,6 +318,7 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         this.end.setText(Mp3Util.formatTime(music.getTime()));
         this.toolbar.setTitle(music.getSongName());
         presenter.getProgress();
+        presenter.getBitmap(music);
 
     }
 
@@ -388,7 +389,8 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
 
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
-        adapter.setMusicPositionList(PlayHelper.create().getCurrentList());
+//        adapter.setMusicPositionList(PlayHelper.create().getCurrentMusicList());
+        adapter.setMusicList(PlayHelper.create().getCurrentMusicList());
 
         BottomSheetDialog bottomSheetDialog=new BottomSheetDialog(PlayingActivity.this);
 
@@ -507,5 +509,28 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         this.albumAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * 设置高斯模糊背景
+     * @param blurBitmap
+     */
+    @Override
+    public void setBlurBitmap(Bitmap blurBitmap) {
+
+        if (blurBitmap!=null) {
+
+            BitmapDrawable drawable = new BitmapDrawable(getResources(), blurBitmap);
+
+
+            bg.setBackground(drawable);
+        }else {
+
+            bg.setBackground(null);
+        }
+    }
+
+    public void showAlbumBook(Music music){
+        
+
+    }
 
 }

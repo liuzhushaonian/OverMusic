@@ -1,5 +1,7 @@
 package com.app.legend.overmusic.interfaces;
 
+import android.graphics.Bitmap;
+
 import com.app.legend.overmusic.bean.Album;
 import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
@@ -15,8 +17,10 @@ import java.util.List;
 public interface IPlayingPresenter {
 
     void setCurrentPager(int position);
-    void setData(List<Integer> positionList);
+    void setData(List<Music> musicList);
+
     void setStatus(PlayStatus status);
+
     void setPlayingStatus(int playingStatus);
 
     void setMusic(Music music);
@@ -30,5 +34,7 @@ public interface IPlayingPresenter {
     void startActivityForAlbum(Album album);
 
     void changeViewPager();
+
+    void setBlurBitmap(Bitmap blurBitmap);
 
 }

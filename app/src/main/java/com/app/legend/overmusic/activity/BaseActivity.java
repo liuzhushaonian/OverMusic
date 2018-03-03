@@ -38,7 +38,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public abstract class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity {
 
     private static final int STORGE=0x000100;
     private static final int SETTINGS=0x000200;
@@ -90,7 +90,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-    protected abstract void setThemeColor();
+    protected void setThemeColor(){
+
+    };
 
     protected void openAlbum() {
         Intent intent=new Intent("android.intent.action.GET_CONTENT");

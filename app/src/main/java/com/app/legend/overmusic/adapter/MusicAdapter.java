@@ -1,6 +1,9 @@
 package com.app.legend.overmusic.adapter;
 
 
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +26,8 @@ import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 
@@ -122,6 +127,11 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
             if (type!=LIST_MUSIC&&type!=SEARCH_LIST_MUSIC) {
                 if (music.getPlayStatus() > 0 && PlayHelper.create().getCurrent_music().getId() == music.getId()) {
                     holder.state.setVisibility(View.VISIBLE);
+                    int defaultColor=OverApplication.getContext().getResources().getColor(R.color.colorBlueGrey);
+                    int color=OverApplication.getContext()
+                            .getSharedPreferences("over_music_shared", Context.MODE_PRIVATE).getInt("color",defaultColor);
+
+                    holder.state.setImageTintList(ColorStateList.valueOf(color));
                 } else {
                     holder.state.setVisibility(View.GONE);
                 }
@@ -193,7 +203,8 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
 
     private void register(){
 
-       disposable= RxBus.getDefault().tObservable(ListStatusEvent.class).subscribe(listStatusEvent -> {
+       disposable= RxBus.getDefault().tObservable(ListStatusEvent.class)
+               .observeOn(AndroidSchedulers.mainThread()).subscribe(listStatusEvent -> {
            Music pre=listStatusEvent.getPre_music();
            Music current=listStatusEvent.getCurrent_music();
            if (type!=LIST_MUSIC&&type!=SEARCH_LIST_MUSIC) {
@@ -212,12 +223,15 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
     private void play(int position){
         Music music=allMusicList.get(position);
         if (type!=SEARCH_LIST_MUSIC) {
-            PlayHelper.create().playAndUpdate(music, allMusicList, position);
+//            PlayHelper.create().playMusicAndUpdateList(music, allMusicList, position);
+
+            PlayHelper.create().playMusicAndUpdateList(allMusicList,position);
 
         }else {//搜索结果点击播放时，仅播放点击结果歌曲
             List<Music> musicList=new ArrayList<>();
             musicList.add(music);
-            PlayHelper.create().playAndUpdate(music,musicList,0);
+            PlayHelper.create().playMusicAndUpdateList(musicList,0);
+//            PlayHelper.create().playAndUpdate(music,musicList,0);
         }
 
         music.setPlayStatus(1);
@@ -250,6 +264,8 @@ public class MusicAdapter extends BaseAdapter<MusicAdapter.ViewHolder> {
                     //设为铃声
                     break;
                 case R.id.next_play:
+//                    PlayHelper.create().addNextMusic(music);
+
                     PlayHelper.create().addNextMusic(music);
                     //设为下一曲播放
                     break;

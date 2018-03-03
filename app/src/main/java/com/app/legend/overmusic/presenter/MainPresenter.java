@@ -318,7 +318,9 @@ public class MainPresenter {
                         return;
                     }
 
-                    PlayHelper.create().playAndUpdate(music.get(0),music,0);
+//                    PlayHelper.create().playAndUpdate(music.get(0),music,0);
+
+                    PlayHelper.create().playMusicAndUpdateList(music,0);
                 });
     }
 

@@ -82,13 +82,13 @@ public class PlayListFragment extends BaseFragment implements IPlayListPresenter
 
     public void getData(){
 
-        if (getPermission) {
+//        if (getPermission) {
             presenter.getData();
             linearLayout.setVisibility(View.GONE);
-        }else {
-            textView.setText(getResources().getString(R.string.permission_info));
-            linearLayout.setVisibility(View.VISIBLE);
-        }
+//        }else {
+//            textView.setText(getResources().getString(R.string.permission_info));
+//            linearLayout.setVisibility(View.VISIBLE);
+//        }
     }
 
     private void register(){

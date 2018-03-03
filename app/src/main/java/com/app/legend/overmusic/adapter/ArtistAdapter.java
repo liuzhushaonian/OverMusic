@@ -175,7 +175,8 @@ public class ArtistAdapter extends BaseAdapter<ArtistAdapter.ViewHolder> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(music -> {
-                    PlayHelper.create().playAndUpdate(music.get(0),music,0);
+//                    PlayHelper.create().playAndUpdate(music.get(0),music,0);
+                    PlayHelper.create().playMusicAndUpdateList(music,0);
                 });
     }
 

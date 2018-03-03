@@ -65,6 +65,13 @@ public class MusicFragment extends BaseFragment implements IMusicFragmentPresent
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter!=null){
+            adapter.notifyDataSetChanged();
+        }
+    }
 
     @Override
     public void onDestroy() {
@@ -81,15 +88,15 @@ public class MusicFragment extends BaseFragment implements IMusicFragmentPresent
      * 检查权限并获取数据
      */
     private void getData(){
-        if (getPermission){
+//        if (getPermission){
 
             getAllMusic();
-        }else {
-//            getPermission();
-//            getData();
-            info.setText(getResources().getString(R.string.permission_info));
-            setListData(null);
-        }
+//        }else {
+////            getPermission();
+////            getData();
+//            info.setText(getResources().getString(R.string.permission_info));
+//            setListData(null);
+//        }
     }
 
 

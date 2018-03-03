@@ -2,15 +2,18 @@ package com.app.legend.overmusic.presenter;
 
 
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.app.legend.overmusic.bean.Album;
 import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.BigPagerChangeEvent;
+import com.app.legend.overmusic.event.ChangePagerEvent;
 import com.app.legend.overmusic.event.GetProgressEvent;
 import com.app.legend.overmusic.event.OpenAlbumFragmentEvent;
 import com.app.legend.overmusic.event.OpenArtistFragmentEvent;
+import com.app.legend.overmusic.event.PagerChangeEvent;
 import com.app.legend.overmusic.event.PagerNotifyChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
@@ -18,15 +21,27 @@ import com.app.legend.overmusic.event.PlayingMusicChangeEvent;
 import com.app.legend.overmusic.event.SearchAlbumEvent;
 import com.app.legend.overmusic.event.SearchArtistEvent;
 import com.app.legend.overmusic.interfaces.IPlayingPresenter;
+import com.app.legend.overmusic.utils.ImageLoader;
+import com.app.legend.overmusic.utils.ImageUtil;
+import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
+
+import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  *
  * Created by legend on 2018/2/16.
+ *
  */
 
 public class PlayingPresenter{
@@ -41,17 +56,17 @@ public class PlayingPresenter{
     private void register(){
 
         //传递正在播放的歌曲（从列表点击才需传递）
-        pagerChange= RxBus.getDefault().tObservable(BigPagerChangeEvent.class).subscribe(bigPagerChangeEvent -> {
+        pagerChange= RxBus.getDefault().tObservable(ChangePagerEvent.class).subscribe(bigPagerChangeEvent -> {
 
             int position=bigPagerChangeEvent.getPosition();
-            List<Integer> integerList=bigPagerChangeEvent.getIntegerList();
-            setData(integerList);
+            List<Music> musicList=bigPagerChangeEvent.getMusicList();
+            setData(musicList);
             setCurrent(position);
 //            runToCurrentMusic(music,position);
 
         });
 
-        status_dis=RxBus.getDefault().tObservable(PlayEvent.class).subscribe(playEvent -> {
+        status_dis=RxBus.getDefault().tObservable(PlayEvent.class).observeOn(AndroidSchedulers.mainThread()).subscribe(playEvent -> {
 
             setStatus(playEvent.getStatus());
 
@@ -98,10 +113,9 @@ public class PlayingPresenter{
         unregister(getProgress_dis);
     }
 
-    private void setData(List<Integer> integers){
+    private void setData(List<Music> musicList){
         if (this.activity!=null){
-
-            activity.setData(integers);
+            activity.setData(musicList);
         }
     }
 
@@ -122,12 +136,11 @@ public class PlayingPresenter{
      */
     public void getData(){
 
-        List<Integer> integerList= PlayHelper.create().getCurrentList();
+        List<Music> musicList=PlayHelper.create().getCurrentMusicList();
         int position=PlayHelper.create().getPosition();
-
-        setData(integerList);
-
+        setData(musicList);
         setCurrent(position);
+
     }
 
     private void setMusic(Music music){
@@ -137,12 +150,6 @@ public class PlayingPresenter{
     }
 
     private void setProgress(int position,long progress){
-
-//        Music music=PlayHelper.create().getCurrent_music();
-//        long time=music.getTime();
-//
-//        int progress= (int) ((position/(time/500)));
-
 
         activity.setPlayProgress(position,progress);
     }
@@ -159,4 +166,31 @@ public class PlayingPresenter{
         activity.startActivityForAlbum(album);
     }
 
+    public void getBitmap(Music music){
+
+        Observable
+                .create((ObservableOnSubscribe<List<Bitmap>>) e -> {
+                    Bitmap bitmap= ImageLoader.getImageLoader(OverApplication.getContext()).getBitmap(music.getAlbumId());
+
+                    List<Bitmap> bitmapList=new ArrayList<>();
+                    if (bitmap!=null){
+                        bitmap= ImageUtil.getBitmap(OverApplication.getContext(),bitmap,25);
+
+                        bitmapList.add(bitmap);
+                    }else {
+                        bitmapList.add(null);
+                    }
+
+                    e.onNext(bitmapList);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bitmaps -> {
+                    if (activity!=null){
+
+                        activity.setBlurBitmap(bitmaps.get(0));
+
+                    }
+                });
+    }
 }

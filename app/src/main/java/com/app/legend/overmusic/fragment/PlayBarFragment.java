@@ -126,24 +126,24 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
     }
 
     //设置list数据，记录当前position
-    @Override
-    public void setDataList(List<Integer> integerList) {
-//        adapter=null;
-//        adapter=new PlayingBarAdapter(getFragmentManager());
+//    @Override
+//    public void setDataList(List<Integer> integerList) {
+////        adapter=null;
+////        adapter=new PlayingBarAdapter(getFragmentManager());
+////
+//        adapter.setPlayPositionList(integerList);
+////        viewPager.setAdapter(adapter);
 //
-        adapter.setPlayPositionList(integerList);
-        viewPager.setAdapter(adapter);
-
-        ((MainActivity)getActivity()).showPlayBar();
-
-        adapter.notifyDataSetChanged();
-
-        pre_position=viewPager.getCurrentItem();
-
-//        if (PlayHelper.create().getStatus().equals(PlayStatus.RANDOM)){
-//            viewPager.setCurrentItem(0,false);
-//        }
-    }
+//        ((MainActivity)getActivity()).showPlayBar();
+//
+//        adapter.notifyDataSetChanged();
+//
+//        pre_position=viewPager.getCurrentItem();
+//
+////        if (PlayHelper.create().getStatus().equals(PlayStatus.RANDOM)){
+////            viewPager.setCurrentItem(0,false);
+////        }
+//    }
 
     //是否允许滑动
     @Override
@@ -179,9 +179,23 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
         this.progressBar.setProgress(progress);
     }
 
+
+    /**
+     * 设置数据
+     * 显示底部栏
+     *
+     * @param musicList 数据
+     */
     @Override
-    public void changePager() {
-        adapter.notifyDataSetChanged();
+    public void setMusicData(int position,List<Music> musicList) {
+        this.adapter=new PlayingBarAdapter(getChildFragmentManager());
+
+        this.viewPager.setAdapter(adapter);
+        this.adapter.setMusicList(musicList);
+        ((MainActivity)getActivity()).showPlayBar();
+
+        setCurrentPager(position);
+
     }
 
 
@@ -221,7 +235,11 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
         });
     }
 
+    /**
+     * 自动判断状态并设置
+     */
     private void autoChangeView(){
+
         if (PlayHelper.create().isPlaying()){
             play_bar_button.setImageResource(R.drawable.ic_pause_black_24dp);
         }else {
@@ -229,13 +247,17 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
         }
     }
 
+    /**
+     * 恢复数据
+     */
     private void resumeView(){
 
         if (PlayHelper.create()!=null){
 
             if (PlayHelper.create().getCurrent_music()!=null){
 
-                setDataList(PlayHelper.create().getCurrentList());
+//                setDataList(PlayHelper.create().getCurrentList());
+                setMusicData(PlayHelper.create().getPosition(),PlayHelper.create().getCurrentMusicList());
 
                 setCurrentPager(PlayHelper.create().getPosition());
 
@@ -243,8 +265,6 @@ public class PlayBarFragment extends Fragment implements IPlayBarPresenter{
             }
 
 //            Log.d("tag---->>","iiii");
-        }else {
-//            Log.d("tag---->>","null!!!!!");
         }
     }
 

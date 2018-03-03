@@ -21,25 +21,7 @@ import java.util.List;
 
 public class PlayAlbumAdapter extends FragmentStatePagerAdapter {
 
-    private List<Integer> positionList;
-
-    public void setPositionList(List<Integer> positionList) {
-
-//        PlayStatus status=PlayHelper.create().getStatus();
-//        if (status.equals(PlayStatus.RANDOM)) {
-//
-//            this.positionList = positionList;
-//        }else if (this.positionList==null){
-//
-//            this.positionList=positionList;
-//        }else if (!this.positionList.equals(positionList)){
-//
-//            this.positionList=positionList;
-//        }
-        this.positionList=positionList;
-
-        notifyDataSetChanged();
-    }
+    private List<Music> musicList;
 
     public PlayAlbumAdapter(FragmentManager fm) {
         super(fm);
@@ -48,8 +30,8 @@ public class PlayAlbumAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
 
-        if (positionList!=null){
-            Music music= PlayHelper.create().getPagerMusic(position);
+        if (musicList!=null){
+            Music music= musicList.get(position);
             PlayingAlumFragment fragment=new PlayingAlumFragment();
             Bundle bundle=new Bundle();
             bundle.putSerializable(PlayingAlumFragment.TAG,music);
@@ -63,20 +45,25 @@ public class PlayAlbumAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        if (positionList!=null){
-            return positionList.size();
+        if (musicList!=null){
+            return musicList.size();
         }
 
         return 0;
     }
 
-//    @Override
+    public void setMusicList(List<Music> musicList) {
+        this.musicList = musicList;
+        notifyDataSetChanged();
+    }
+
+    //    @Override
 //    public boolean isViewFromObject(View view, Object object) {
 //        return (view==object);
 //    }
 //
-//    @Override
-//    public int getItemPosition(Object object) {
-//        return POSITION_NONE;
-//    }
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }
 }

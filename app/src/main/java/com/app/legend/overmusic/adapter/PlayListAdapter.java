@@ -156,12 +156,14 @@ public class PlayListAdapter extends BaseAdapter<PlayListAdapter.ViewHolder>{
         Observable
                 .create((ObservableOnSubscribe<List<Music>>) e -> {
                     List<Music> musicList= Mp3Util.newInstance().getPlayListMusic(playList);
+                    if (musicList!=null)
                     e.onNext(musicList);
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(music -> {
-                    PlayHelper.create().playAndUpdate(music.get(0),music,0);
+                    if (!music.isEmpty())
+                    PlayHelper.create().playMusicAndUpdateList(music,0);
                 });
 
     }

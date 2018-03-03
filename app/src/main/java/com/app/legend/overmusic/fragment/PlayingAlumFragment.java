@@ -38,7 +38,7 @@ public class PlayingAlumFragment extends Fragment {
         setData();
 
         view.setOnClickListener(v -> {
-            Toast.makeText(getContext(),""+this.music.getSongName(),Toast.LENGTH_SHORT).show();
+
         });
         return view;
     }
@@ -51,11 +51,12 @@ public class PlayingAlumFragment extends Fragment {
 
         Bundle bundle=getArguments();
         this.music= (Music) bundle.getSerializable(TAG);
-
-        Log.d("music---->>",music.getSongName());
         int w=getResources().getDisplayMetrics().widthPixels;
         ImageLoader.getImageLoader(getContext()).setAlbum(this.music,this.imageView,ImageLoader.BIG,w,w);
 
     }
+
+
+
 
 }

@@ -83,14 +83,14 @@ public class AlbumFragment extends BaseFragment implements IAlbumPresenter{
     }
 
     private void getData(){
-        if (getPermission) {
+//        if (getPermission) {
             presenter.getData();
-        }else {
-//            getPermission();
-//            getData();
-            info.setText(getResources().getString(R.string.permission_info));
-            setDataList(null);
-
-        }
+//        }else {
+////            getPermission();
+////            getData();
+//            info.setText(getResources().getString(R.string.permission_info));
+//            setDataList(null);
+//
+//        }
     }
 }

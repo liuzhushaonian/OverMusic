@@ -29,4 +29,9 @@
     <color name="colorTransparent">#00000000</color>
 
     <color name="colorButton">#c1c1c1</color>
+
+    <color name="colorUp">#fffefe</color>
+    <color name="colorDown">#00f6fdf6</color>
+
+    <color name="colorSplash">#f6fdf6</color>
 </resources>

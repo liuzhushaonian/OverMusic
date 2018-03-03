@@ -56,13 +56,13 @@ public class ArtistFragment extends BaseFragment implements IArtistPresenter{
     }
 
     private void getData(){
-        if (getPermission) {
+//        if (getPermission) {
             presenter.getData();
-        }else {
-            //暂定不写
-            info.setText(getResources().getString(R.string.permission_info));
-            setData(null);
-        }
+//        }else {
+//            //暂定不写
+//            info.setText(getResources().getString(R.string.permission_info));
+//            setData(null);
+//        }
     }
 
     @Override

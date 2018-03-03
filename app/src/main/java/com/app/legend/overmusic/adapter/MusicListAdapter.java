@@ -27,11 +27,10 @@ import java.util.List;
 
 public class MusicListAdapter extends BaseAdapter<MusicListAdapter.ViewHolder> {
 
-    private List<Integer> musicPositionList;
+    private List<Music> musicList;
 
-
-    public void setMusicPositionList(List<Integer> musicPositionList) {
-        this.musicPositionList = musicPositionList;
+    public void setMusicList(List<Music> musicList) {
+        this.musicList = musicList;
         notifyDataSetChanged();
     }
 
@@ -61,10 +60,10 @@ public class MusicListAdapter extends BaseAdapter<MusicListAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        if (musicPositionList!=null){
-            int p=musicPositionList.get(position);
+        if (musicList!=null){
 
-            Music music= PlayHelper.create().getPagerMusic(position);
+
+            Music music= musicList.get(position);
 
             holder.song.setText(music.getSongName());
             String info=music.getArtistName()+" | "+music.getAlbumName();
@@ -84,8 +83,8 @@ public class MusicListAdapter extends BaseAdapter<MusicListAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        if (musicPositionList!=null){
-            return musicPositionList.size();
+        if (musicList!=null){
+            return musicList.size();
         }
         return super.getItemCount();
     }
@@ -111,7 +110,7 @@ public class MusicListAdapter extends BaseAdapter<MusicListAdapter.ViewHolder> {
 
     private void playMusic(int position){
 
-        Music music=PlayHelper.create().getPagerMusic(position);
+        Music music=musicList.get(position);
 
         PlayHelper.create().playMusicByClickPlayingList(music,position);
 
@@ -119,7 +118,7 @@ public class MusicListAdapter extends BaseAdapter<MusicListAdapter.ViewHolder> {
 
     private void clickMenu(int position){
 
-        Music music=PlayHelper.create().getPagerMusic(position);
+        Music music=musicList.get(position);
 
 
         popupMenu.setOnMenuItemClickListener(item -> {
@@ -185,7 +184,7 @@ public class MusicListAdapter extends BaseAdapter<MusicListAdapter.ViewHolder> {
 //        musicPositionList.remove(position);
 //        notifyDataSetChanged();
 
-        PlayHelper.create().deleteMusicPosition(position);
+//        PlayHelper.create().deleteMusicPosition(position);
 
         notifyDataSetChanged();
 

@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -39,6 +41,8 @@ import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
@@ -115,14 +119,18 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         mediaPlayer.setOnPreparedListener(mp -> {
             start();
             startTimer(PlayHelper.create().getCurrent_music());
+//
+//            if (this.notification==null) {
+////                startNotification();//打开前台通知
+////                changePlayStatus();//改变通知按钮
+//
+//                startNewNotification(PlayHelper.create().getCurrent_music());
+//            }
 
-            if (this.notification==null) {
-                startNotification();//打开前台通知
-                changePlayStatus();//改变通知按钮
-            }
+            startNewNotification();
 
 
-            changeNotification(PlayHelper.create().getCurrent_music());//改变通知内容
+//            changeNotification(PlayHelper.create().getCurrent_music());//改变通知内容
 
         });
 
@@ -181,7 +189,8 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         }
         mediaPlayer.start();
         turnUpVolume();//渐渐提升音量
-        changePlayStatus();
+//        changePlayStatus();
+        startNewNotification();
 
     }
 
@@ -191,8 +200,14 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
             return;
         }
 
-        mediaPlayer.pause();
-        changePlayStatus();
+        if (mediaPlayer.isPlaying()) {
+
+            mediaPlayer.pause();
+//            changePlayStatus();
+            startNewNotification();
+            stopNotification(false);
+
+        }
     }
 
     private void play(Music music) {
@@ -300,7 +315,7 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
                     };
 
                     timer.schedule(timerTask,0,1000);
-                    Log.d("thread11---->>",Thread.currentThread().getName()+"");
+
 
                 })
                 .subscribeOn(Schedulers.io())
@@ -332,9 +347,10 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
 
             CharSequence sequence="over_music_notification_channel";
             this.notificationChannel=new NotificationChannel(CHANNEL_ID,sequence,NotificationManager.IMPORTANCE_MIN);
-            this.notificationChannel.setShowBadge(false);
+            this.notificationChannel.setShowBadge(true);
             this.notificationChannel.setLockscreenVisibility(0);
             this.notificationChannel.setSound(null,null);
+
 
             NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -378,6 +394,8 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         builder.setCustomContentView(remoteSmallViews);
         builder.setCustomBigContentView(remoteBigViews);
 
+
+
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
@@ -386,6 +404,7 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
                 .setSmallIcon(R.drawable.ic_album_black_24dp)
                 .setContentIntent(pendingIntent)
                 .setChannelId(CHANNEL_ID)
+                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle())
                 .build();
 
         startForeground(110, notification);
@@ -442,9 +461,6 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         assert notificationManager != null;
-
-
-
         notificationManager.notify(110,this.notification);
 
     }
@@ -556,6 +572,78 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
                 }
             }
         }.start();
+    }
+
+    private void startNewNotification(){
+
+        Music music=PlayHelper.create().getCurrent_music();
+
+        NotificationCompat.Builder builder=new NotificationCompat.Builder(getApplicationContext(),CHANNEL_ID);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            CharSequence sequence="over_music_notification_channel";
+            this.notificationChannel=new NotificationChannel(CHANNEL_ID,sequence,NotificationManager.IMPORTANCE_DEFAULT);
+            this.notificationChannel.setShowBadge(false);
+            this.notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            this.notificationChannel.setSound(null,null);
+
+
+            NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            assert notificationManager != null;
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        Bitmap bitmap=ImageLoader.getImageLoader(getApplicationContext()).getBitmap(music.getAlbumId());
+
+        if (bitmap!=null){
+            builder.setLargeIcon(bitmap);
+
+            int defaultValue=getResources().getColor(R.color.colorBlueGrey);
+            int color=ColorUtil.getColor(bitmap,defaultValue);
+
+            builder.setColor(color);
+        }
+
+        String info=music.getArtistName()+" | "+music.getAlbumName();
+
+        Intent pre_intent=new Intent(PlayingBroadcast.PREVIOUS);
+        PendingIntent pre_pendingIntent=getPendingIntentForBroadcast(pre_intent);
+
+        Intent action_intent=new Intent(PlayingBroadcast.PLAY);
+        PendingIntent action_pendingIntent=getPendingIntentForBroadcast(action_intent);
+
+        Intent next_intent=new Intent(PlayingBroadcast.NEXT);
+        PendingIntent next_pendingIntent=getPendingIntentForBroadcast(next_intent);
+
+        NotificationCompat.Action pre_action=new NotificationCompat.Action(R.drawable.ic_skip_previous_black_24dp,"previous",pre_pendingIntent);
+        builder.addAction(pre_action);
+        if (mediaPlayer!=null&&mediaPlayer.isPlaying()){
+            NotificationCompat.Action pause_action = new NotificationCompat.Action(R.drawable.ic_pause_black_24dp, "play", action_pendingIntent);
+            builder.addAction(pause_action);
+        }else {
+            NotificationCompat.Action play_action = new NotificationCompat.Action(R.drawable.ic_play_arrow_black_24dp, "play", action_pendingIntent);
+            builder.addAction(play_action);
+
+        }
+
+        NotificationCompat.Action next_action=new NotificationCompat.Action(R.drawable.ic_skip_next_black_24dp,"next",next_pendingIntent);
+        builder.addAction(next_action);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+       Notification notification=builder.setContentTitle(music.getSongName())
+                .setContentText(info)
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.ic_music_note_black_24dp)
+                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
+                .setSound(null)
+                .build();
+
+        startForeground(2,notification);
+
     }
 
 

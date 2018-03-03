@@ -191,7 +191,8 @@ public class AlbumAdapter extends BaseAdapter<AlbumAdapter.ViewHolder> {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(musicList -> {
-                    PlayHelper.create().playAndUpdate(musicList.get(0),musicList,0);
+//                    PlayHelper.create().playAndUpdate(musicList.get(0),musicList,0);
+                    PlayHelper.create().playMusicAndUpdateList(musicList,0);
                 });
     }
 
