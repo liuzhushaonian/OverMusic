@@ -5,62 +5,41 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.activity.MainActivity;
 import com.app.legend.overmusic.bean.Music;
+import com.app.legend.overmusic.broadcast.MediaButtonReceiver;
 import com.app.legend.overmusic.broadcast.PlayingBroadcast;
 import com.app.legend.overmusic.event.GetProgressEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
 import com.app.legend.overmusic.event.SeekEvent;
 import com.app.legend.overmusic.interfaces.IHelper;
-import com.app.legend.overmusic.interfaces.OnChangeSeekLinstener;
 import com.app.legend.overmusic.utils.ColorUtil;
 import com.app.legend.overmusic.utils.ImageLoader;
-import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-import static java.lang.Thread.sleep;
 
 public class PlayService extends Service implements IHelper,AudioManager.OnAudioFocusChangeListener{
 
@@ -69,10 +48,9 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
     private Disposable seek_dis,get_dis;
     private Timer timer;
     private static final String CHANNEL_ID="OVER_MUSIC";
-
     private PlayingBroadcast playingBroadcast;
-    private Notification notification;
     private NotificationChannel notificationChannel;
+    AudioManager audioManager;
 
     @Override
     public void onAudioFocusChange(int focusChange) {
@@ -119,18 +97,7 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         mediaPlayer.setOnPreparedListener(mp -> {
             start();
             startTimer(PlayHelper.create().getCurrent_music());
-//
-//            if (this.notification==null) {
-////                startNotification();//打开前台通知
-////                changePlayStatus();//改变通知按钮
-//
-//                startNewNotification(PlayHelper.create().getCurrent_music());
-//            }
-
-            startNewNotification();
-
-
-//            changeNotification(PlayHelper.create().getCurrent_music());//改变通知内容
+            startNewNotification(false);
 
         });
 
@@ -149,8 +116,7 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         intentFilter.addAction(PlayingBroadcast.PREVIOUS);
 
         registerReceiver(this.playingBroadcast,intentFilter);
-
-
+        registerReceiver();
     }
 
 
@@ -168,9 +134,10 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
             unregisterReceiver(this.playingBroadcast);
         }
 
-        if (this.notification!=null){
-            stopNotification(true);
-        }
+        stopForeground(true);
+        unregisterReceiver();
+
+        Log.d("destory---->>>","service is destory!");
     }
 
     @Override
@@ -190,7 +157,7 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         mediaPlayer.start();
         turnUpVolume();//渐渐提升音量
 //        changePlayStatus();
-        startNewNotification();
+        startNewNotification(false);
 
     }
 
@@ -203,8 +170,6 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         if (mediaPlayer.isPlaying()) {
 
             mediaPlayer.pause();
-//            changePlayStatus();
-            startNewNotification();
             stopNotification(false);
 
         }
@@ -239,13 +204,16 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
     public void pauseMusic() {
 //        pause();
         turnDownVolume();
+        startNewNotification(true);
     }
 
     @Override
     public void stop() {
         if (mediaPlayer!=null){
             mediaPlayer.stop();
+            startNewNotification(true);
             stopNotification(false);
+
         }
     }
 
@@ -315,8 +283,6 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
                     };
 
                     timer.schedule(timerTask,0,1000);
-
-
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -330,171 +296,16 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         }
     }
 
-    private RemoteViews getNotificationView(int res){
-
-        return new RemoteViews(this.getPackageName(),res);
-
-    }
-
     private PendingIntent getPendingIntentForBroadcast(Intent intent){
 
         return PendingIntent.getBroadcast(this,0,intent,0);
     }
 
-    private void startNotification(){
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            CharSequence sequence="over_music_notification_channel";
-            this.notificationChannel=new NotificationChannel(CHANNEL_ID,sequence,NotificationManager.IMPORTANCE_MIN);
-            this.notificationChannel.setShowBadge(true);
-            this.notificationChannel.setLockscreenVisibility(0);
-            this.notificationChannel.setSound(null,null);
-
-
-            NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-            assert notificationManager != null;
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-
-        NotificationCompat.Builder builder=new NotificationCompat.Builder(PlayService.this,CHANNEL_ID);
-
-        RemoteViews remoteBigViews=getNotificationView(R.layout.big_notification);
-
-        RemoteViews remoteSmallViews=getNotificationView(R.layout.small_notification);
-
-
-        /**
-         * 上一曲
-         */
-        Intent pre_intent=new Intent(PlayingBroadcast.PREVIOUS);
-        PendingIntent pre_pendingIntent=getPendingIntentForBroadcast(pre_intent);
-        remoteBigViews.setOnClickPendingIntent(R.id.notification_previous,pre_pendingIntent);
-        remoteSmallViews.setOnClickPendingIntent(R.id.small_notification_previous,pre_pendingIntent);
-
-
-        /**
-         * 下一曲
-         */
-        Intent next_intent=new Intent(PlayingBroadcast.NEXT);
-        PendingIntent next_pendingIntent=getPendingIntentForBroadcast(next_intent);
-        remoteBigViews.setOnClickPendingIntent(R.id.notification_next,next_pendingIntent);
-        remoteSmallViews.setOnClickPendingIntent(R.id.small_notification_next,next_pendingIntent);
-
-        /**
-         * 播放or暂停
-         */
-        Intent action_intent=new Intent(PlayingBroadcast.PLAY);
-        PendingIntent action_pendingIntent=getPendingIntentForBroadcast(action_intent);
-        remoteBigViews.setOnClickPendingIntent(R.id.notification_play,action_pendingIntent);
-        remoteSmallViews.setOnClickPendingIntent(R.id.small_notification_play,action_pendingIntent);
-
-
-        builder.setCustomContentView(remoteSmallViews);
-        builder.setCustomBigContentView(remoteBigViews);
-
-
-
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-        this.notification=builder
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.ic_album_black_24dp)
-                .setContentIntent(pendingIntent)
-                .setChannelId(CHANNEL_ID)
-                .setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle())
-                .build();
-
-        startForeground(110, notification);
-
-    }
-
-    /**
-     * 改变通知
-     * @param music
-     */
-    private void changeNotification(Music music){
-
-        if (this.notification==null){
-            return;
-        }
-
-
-        this.notification.bigContentView.setTextViewText(R.id.notification_song,music.getSongName());
-        this.notification.contentView.setTextViewText(R.id.small_notification_song,music.getSongName());
-
-        String info=music.getArtistName()+" | "+music.getAlbumName();
-
-        this.notification.bigContentView.setTextViewText(R.id.notification_info,info);
-        this.notification.contentView.setTextViewText(R.id.small_notification_info,info);
-
-        int w=getResources().getDimensionPixelSize(R.dimen.notification_big_book);
-
-        Bitmap bitmap= ImageLoader.getImageLoader(getApplicationContext()).getSizeBitmap(music.getAlbumId(),w,w);
-
-        if (bitmap!=null) {
-
-            int defaultValue=getResources().getColor(R.color.colorBlueGrey);
-
-            int d=OverApplication.getContext().getSharedPreferences("over_music_shared",MODE_PRIVATE).getInt("color",defaultValue);
-
-            int color= ColorUtil.getColor(bitmap,d);
-
-            this.notification.bigContentView.setTextColor(R.id.notification_song,color);
-            this.notification.bigContentView.setTextColor(R.id.notification_info,color);
-            this.notification.bigContentView.setImageViewBitmap(R.id.notification_album_book, bitmap);
-
-
-            this.notification.contentView.setImageViewBitmap(R.id.small_notification_album_book, bitmap);
-            this.notification.contentView.setTextColor(R.id.small_notification_song,color);
-            this.notification.contentView.setTextColor(R.id.small_notification_info,color);
-
-        }else {
-
-            this.notification.bigContentView.setImageViewResource(R.id.notification_album_book,R.drawable.ic_audiotrack_black_24dp);
-            this.notification.contentView.setImageViewResource(R.id.small_notification_album_book, R.drawable.ic_audiotrack_black_24dp);
-
-        }
-
-        NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        assert notificationManager != null;
-        notificationManager.notify(110,this.notification);
-
-    }
 
     //停止前台通知
     //同时可以取消通知
     private void stopNotification(boolean remove){
         stopForeground(remove);
-    }
-
-    private void changePlayStatus(){
-
-        if (this.notification==null){
-            return;
-        }
-
-        if (mediaPlayer!=null&&mediaPlayer.isPlaying()) {
-            this.notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_pause_black_24dp);
-            this.notification.contentView.setImageViewResource(R.id.small_notification_play,R.drawable.ic_pause_black_24dp);
-
-            startForeground(110,this.notification);
-        }else {
-            this.notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_arrow_black_24dp);
-            this.notification.contentView.setImageViewResource(R.id.small_notification_play,R.drawable.ic_play_arrow_black_24dp);
-            stopNotification(false);
-        }
-
-        NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (notificationManager!=null) {
-
-            notificationManager.notify(110, this.notification);
-        }
-
     }
 
 
@@ -574,7 +385,7 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
         }.start();
     }
 
-    private void startNewNotification(){
+    private void startNewNotification(boolean isPause){
 
         Music music=PlayHelper.create().getCurrent_music();
 
@@ -619,7 +430,7 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
 
         NotificationCompat.Action pre_action=new NotificationCompat.Action(R.drawable.ic_skip_previous_black_24dp,"previous",pre_pendingIntent);
         builder.addAction(pre_action);
-        if (mediaPlayer!=null&&mediaPlayer.isPlaying()){
+        if (!isPause){
             NotificationCompat.Action pause_action = new NotificationCompat.Action(R.drawable.ic_pause_black_24dp, "play", action_pendingIntent);
             builder.addAction(pause_action);
         }else {
@@ -644,9 +455,29 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
 
         startForeground(2,notification);
 
+        if(mediaPlayer!=null&&!mediaPlayer.isPlaying()){
+            stopForeground(false);
+        }
+
     }
 
 
+    private void registerReceiver(){
+
+        audioManager = (AudioManager)getApplicationContext()
+                .getSystemService(Context.AUDIO_SERVICE);
+        ComponentName name = new ComponentName(getApplicationContext().getPackageName(),
+                MediaButtonReceiver.class.getName());
+        audioManager.registerMediaButtonEventReceiver(name);
+    }
+
+    private void unregisterReceiver(){
+        if (this.audioManager!=null){
+            ComponentName name = new ComponentName(getApplicationContext().getPackageName(),
+                    MediaButtonReceiver.class.getName());
+            audioManager.unregisterMediaButtonEventReceiver(name);
+        }
+    }
 
 
 }

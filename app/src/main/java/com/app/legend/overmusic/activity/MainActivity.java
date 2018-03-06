@@ -3,14 +3,11 @@ package com.app.legend.overmusic.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -18,9 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.TintTypedArray;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.adapter.SingleAdapter;
 import com.app.legend.overmusic.bean.Album;
@@ -48,6 +42,7 @@ import com.app.legend.overmusic.fragment.PlayBarFragment;
 import com.app.legend.overmusic.fragment.PlayListFragment;
 import com.app.legend.overmusic.interfaces.IMainPresenter;
 import com.app.legend.overmusic.presenter.MainPresenter;
+import com.app.legend.overmusic.service.PlayService;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
 import java.util.ArrayList;
@@ -66,7 +61,6 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
     FrameLayout frameLayout;
     Disposable disposable,music_dis,album_dis,artist_dis;
     PlayListFragment playListFragment;
-
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private ImageView headerImage;
@@ -77,6 +71,11 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility( View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+
         setContentView(R.layout.activity_main);
         presenter=new MainPresenter(MainActivity.this);
         getComponent();
@@ -281,15 +280,6 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
                 play=1;
             }
         });
-
-//        animator.addListener(new AnimatorListenerAdapter() {
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                super.onAnimationEnd(animation);
-////                bottom_layout.setVisibility(View.VISIBLE);
-//
-//            }
-//        });
 
         animator.setDuration(300).start();
     }
@@ -509,8 +499,10 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
     }
 
     private void exit(){
+        finishService();
         finishAndRemoveTask();
         System.exit(0);
+
     }
 
 
@@ -559,6 +551,14 @@ public class MainActivity extends BaseActivity implements IMainPresenter{
                 fragment.setCurrentPager(PlayHelper.create().getPosition());
             }
         }
+    }
+
+    private void finishService(){
+
+        Intent intent=new Intent(this, PlayService.class);
+        stopService(intent);
+
+
     }
 
 }

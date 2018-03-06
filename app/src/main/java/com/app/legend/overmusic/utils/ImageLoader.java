@@ -405,7 +405,7 @@ public class ImageLoader {
                 bitmap=getBitmapFromLocal(url,width,height,type);
             }
 
-            Result result=new Result(type,width,height,bitmap,imageView);
+            Result result=new Result(type,width,height,bitmap,imageView,music.getAlbumId());
 
             handler.obtainMessage(100,result).sendToTarget();
         };
@@ -425,7 +425,7 @@ public class ImageLoader {
                 bitmap=getBitmapFromLocal(url,width,height,type);
             }
 
-            Result result=new Result(type,width,height,bitmap,imageView);
+            Result result=new Result(type,width,height,bitmap,imageView,id);
 
             handler.obtainMessage(200,result).sendToTarget();
 
@@ -466,15 +466,19 @@ public class ImageLoader {
                     Result result= (Result) msg.obj;
                     Bitmap bitmap=result.getBitmap();
 
+
                     if (bitmap!=null){
                         result.getImageView().setImageBitmap(bitmap);
                     }else {
 
                         ImageView imageView=result.getImageView();
 
+                        imageView.setBackgroundColor(ColorUtil.getAlbumColor(result.getId()));
+
                         if (result.getType()==BIG){
 
                             imageView.setImageResource(R.drawable.ic_audiotrack_black_150dp);
+
 
                         }else {
 
@@ -494,6 +498,7 @@ public class ImageLoader {
                     }else {
 
                         ImageView imageView=result2.getImageView();
+                        imageView.setBackgroundColor(ColorUtil.getAlbumColor(result2.getId()));
 
                         imageView.setImageResource(R.drawable.ic_audiotrack_black_100dp);
                     }
@@ -536,13 +541,15 @@ public class ImageLoader {
         int width,height;
         Bitmap bitmap;
         ImageView imageView;
+        int id;
 
-        public Result(int type, int width, int height, Bitmap bitmap, ImageView imageView) {
+        public Result(int type, int width, int height, Bitmap bitmap, ImageView imageView,int id) {
             this.type = type;
             this.width = width;
             this.height = height;
             this.bitmap = bitmap;
             this.imageView = imageView;
+            this.id=id;
         }
 
         public int getType() {
@@ -564,6 +571,11 @@ public class ImageLoader {
         public ImageView getImageView() {
             return imageView;
         }
+
+        public int getId() {
+            return id;
+        }
+
     }
 
 }

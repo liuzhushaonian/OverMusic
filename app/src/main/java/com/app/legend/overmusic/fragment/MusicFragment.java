@@ -99,9 +99,6 @@ public class MusicFragment extends BaseFragment implements IMusicFragmentPresent
 //        }
     }
 
-
-
-
     @Override
     public void setListData(List<Music> musicList){
 

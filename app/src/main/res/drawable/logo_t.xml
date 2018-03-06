@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:viewportWidth="138"
+    android:viewportHeight="138" android:width="48dp" android:height="48dp">
+    <group android:name="Page-1">
+        <path android:fillColor="#00000000" android:strokeWidth="10" android:name="Oval"
+            android:strokeColor="#6E9197"
+            android:fillType="evenOdd"
+            android:pathData="M 5,69 a 64,64 0 0 1 128,0 a 64,64 0 0 1 -128,0 z" />
+    </group>
+</vector>

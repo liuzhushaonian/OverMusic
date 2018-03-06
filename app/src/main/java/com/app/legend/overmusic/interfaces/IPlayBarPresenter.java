@@ -13,7 +13,7 @@ public interface IPlayBarPresenter {
 
     void setCurrentPager(int position);
 
-//    void setDataList(List<Integer> integerList);
+
 
     void setScroll(boolean scroll);
 

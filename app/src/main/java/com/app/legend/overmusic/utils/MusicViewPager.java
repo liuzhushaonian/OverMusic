@@ -3,6 +3,7 @@ package com.app.legend.overmusic.utils;
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 
 /**
@@ -28,6 +29,7 @@ public class MusicViewPager extends ViewPager {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+
         return isScroll&&super.onTouchEvent(ev);
     }
 

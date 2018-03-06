@@ -107,6 +107,7 @@ public class SearchActivity extends BaseActivity implements ISearchPresenter{
 
 
         searchView.setIconifiedByDefault(true);
+        searchView.setIconified(false);
         int id = searchView.getResources().getIdentifier("search_src_text", "id", getApplicationContext().getPackageName());
 
         this.textView=searchView.findViewById(id);

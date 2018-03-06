@@ -3,39 +3,30 @@ package com.app.legend.overmusic.presenter;
 
 
 import android.graphics.Bitmap;
-import android.util.Log;
-
 import com.app.legend.overmusic.bean.Album;
 import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
-import com.app.legend.overmusic.event.BigPagerChangeEvent;
 import com.app.legend.overmusic.event.ChangePagerEvent;
 import com.app.legend.overmusic.event.GetProgressEvent;
 import com.app.legend.overmusic.event.OpenAlbumFragmentEvent;
 import com.app.legend.overmusic.event.OpenArtistFragmentEvent;
-import com.app.legend.overmusic.event.PagerChangeEvent;
 import com.app.legend.overmusic.event.PagerNotifyChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
 import com.app.legend.overmusic.event.PlayingMusicChangeEvent;
-import com.app.legend.overmusic.event.SearchAlbumEvent;
-import com.app.legend.overmusic.event.SearchArtistEvent;
+import com.app.legend.overmusic.event.StatusChangeEvent;
 import com.app.legend.overmusic.interfaces.IPlayingPresenter;
 import com.app.legend.overmusic.utils.ImageLoader;
 import com.app.legend.overmusic.utils.ImageUtil;
 import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -46,7 +37,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class PlayingPresenter{
     private IPlayingPresenter activity;
-    private Disposable pagerChange,status_dis,playing_dis,getProgress_dis,artist_dis,album_dis,pager_dis;
+    private Disposable pagerChange,status_dis,playing_dis,getProgress_dis,artist_dis,album_dis,pager_dis,scroll_dis;
 
     public PlayingPresenter(IPlayingPresenter activity) {
         this.activity = activity;
@@ -96,6 +87,12 @@ public class PlayingPresenter{
             activity.changeViewPager();
         });
 
+        scroll_dis=RxBus.getDefault().tObservable(StatusChangeEvent.class)
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(statusChangeEvent -> {
+                    if (this.activity!=null){
+                        activity.setScroll(statusChangeEvent.isScroll());
+                    }
+                });
     }
 
     private void unregister(Disposable disposable){
@@ -111,6 +108,8 @@ public class PlayingPresenter{
         unregister(artist_dis);
         unregister(album_dis);
         unregister(getProgress_dis);
+        unregister(scroll_dis);
+        unregister(pager_dis);
     }
 
     private void setData(List<Music> musicList){

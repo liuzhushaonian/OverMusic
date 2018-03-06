@@ -1,12 +1,14 @@
 package com.app.legend.overmusic.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Environment;
@@ -132,4 +134,7 @@ public class BaseActivity extends AppCompatActivity {
         return BitmapFactory.decodeFile(path);
 
     }
+
+
+
 }

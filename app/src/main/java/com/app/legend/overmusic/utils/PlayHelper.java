@@ -1,12 +1,18 @@
 package com.app.legend.overmusic.utils;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.ChangePagerEvent;
 import com.app.legend.overmusic.event.ListStatusEvent;
 import com.app.legend.overmusic.event.PlayEvent;
 import com.app.legend.overmusic.event.PlayingMusicChangeEvent;
+import com.app.legend.overmusic.event.StatusChangeEvent;
 import com.app.legend.overmusic.interfaces.IHelper;
 import com.app.legend.overmusic.service.PlayService;
 
@@ -71,6 +77,12 @@ public class PlayHelper {
      * 提供通知按钮播放与暂停
      */
     public void playOrPause() {
+
+        if (this.current_music==null){
+
+            Log.w("w--->>","the music is null！！");
+            return;
+        }
 
         if (isPlaying()) {
             pause();
@@ -150,6 +162,11 @@ public class PlayHelper {
     }
 
     private void previous() {
+
+        if (this.current_music==null){
+            return;
+        }
+
         if (position - 1 < 0) {
             position = 0;
         } else {
@@ -182,6 +199,10 @@ public class PlayHelper {
     //手动播放下一首
     private void next() {
 
+        if (this.current_music==null){
+            return;
+        }
+
         int limit = -1;
 
         limit = getCurrentMusicList().size();
@@ -198,7 +219,8 @@ public class PlayHelper {
             default:
                 if (position + 1 >= limit) {
 
-                    stop();
+//                    stop();
+                    pause();
                     return;
                 } else {
                     position++;
@@ -263,7 +285,6 @@ public class PlayHelper {
      */
     public void setStatus(PlayStatus status) {
 
-        Log.d("position11111---->>>",this.position+"");
 
         if (this.status.equals(status)) {
             return;
@@ -288,7 +309,34 @@ public class PlayHelper {
             initMusicRandomList();
         }
 
-        Log.d("position22222---->>>",this.position+"");
+
+        if (this.status.equals(PlayStatus.SINGLE)){
+
+            postStatus(false);
+        }else {
+            postStatus(true);
+        }
+
+
+        switch (status){
+            case RANDOM:
+
+                Toast.makeText(OverApplication.getContext(),"随机来点",Toast.LENGTH_SHORT).show();
+                break;
+            case CIRCULATION:
+
+                Toast.makeText(OverApplication.getContext(),"列表循环",Toast.LENGTH_SHORT).show();
+                break;
+            case NORMAL:
+
+                Toast.makeText(OverApplication.getContext(),"顺序播放",Toast.LENGTH_SHORT).show();
+                break;
+            case SINGLE:
+
+                Toast.makeText(OverApplication.getContext(),"洗脑单曲",Toast.LENGTH_SHORT).show();
+                break;
+        }
+
 
     }
 
@@ -565,36 +613,10 @@ public class PlayHelper {
     }
 
 
-    /**
-     * 缓存过快进行下一曲的音乐
-     *
-     * @param music
-     */
-    private void cacheMusic(Music music) {
-        if (this.cacheList != null) {
-            this.cacheList.add(music);
-            cancelTimer();
-            startTimer();
-            Log.d("music------>>>",music.getSongName());
-        }
-    }
-
-    /**
-     * 缓存结束，并将最后的music放置播放
-     */
-    private void popMusic() {
-        if (this.cacheList != null && !this.cacheList.isEmpty()) {
-            Music music = this.cacheList.get(this.cacheList.size() - 1);
-            Log.d("music3333------>>>",music.getSongName());
-
-            truelyPlayMusic(music);
-
-            this.cacheList.clear();
-        }
-    }
 
     private Timer timer;
     private int open=0;
+    private int clickCount=0;
 
     private void startTimer(){
         timer=new Timer();
@@ -603,12 +625,27 @@ public class PlayHelper {
             @Override
             public void run() {
                 open+=1;
-                Log.d("open1----->>",open+"");
-                if (open==15){
-                    Log.d("open2----->>",open+"");
-                    popMusic();
-                    timer.cancel();
 
+                if (open>=10){//过1秒没有点击
+
+                    switch (clickCount){
+                        case 1://单击
+                            handler.sendEmptyMessage(1);
+
+                            break;
+                        case 2://双击
+                            handler.sendEmptyMessage(2);
+
+                            break;
+                        case 3:
+
+                            handler.sendEmptyMessage(3);
+                            break;
+                    }
+
+                    clickCount=0;
+
+                    timer.cancel();
                 }
             }
         };
@@ -623,5 +660,37 @@ public class PlayHelper {
             timer.cancel();
         }
     }
+
+    private void postStatus(boolean status){
+
+        RxBus.getDefault().post(new StatusChangeEvent(status));
+    }
+
+
+    public void getMediaButtonEvent(){
+        clickCount++;
+        cancelTimer();
+        open=0;
+        startTimer();
+    }
+
+    Handler handler=new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what){
+                case 1:
+                    PlayHelper.create().playOrPause();
+                    break;
+                case 2:
+                    PlayHelper.create().buttonToNext();
+                    break;
+                case 3:
+                    PlayHelper.create().buttonToPrevious();
+                    break;
+            }
+        }
+    };
 
 }

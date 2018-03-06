@@ -2,6 +2,7 @@ package com.app.legend.overmusic.activity;
 
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -19,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.app.legend.overmusic.R;
 import com.app.legend.overmusic.adapter.MusicListAdapter;
 import com.app.legend.overmusic.adapter.PlayAlbumAdapter;
@@ -80,8 +83,6 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
     protected void onDestroy() {
         super.onDestroy();
 
-        Log.d("desss-------->>>","destory!!!!!!!!!");
-
         if (presenter!=null){
             presenter.dis();
         }
@@ -95,6 +96,8 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         this.controller_view.setCardBackgroundColor(getThemeColor());
 
         this.controller_view.getBackground().setAlpha(50);
+
+        this.progressBar.setProgressTintList(ColorStateList.valueOf(getThemeColor()));
     }
 
     @Override
@@ -426,8 +429,8 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         playStatusList=new ArrayList<>();
         playStatusList.add(PlayStatus.NORMAL);
         playStatusList.add(PlayStatus.CIRCULATION);
-        playStatusList.add(PlayStatus.RANDOM);
         playStatusList.add(PlayStatus.SINGLE);
+        playStatusList.add(PlayStatus.RANDOM);
 
         this.position=playStatusList.indexOf(PlayHelper.create().getStatus());
     }
@@ -440,6 +443,7 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         switch (status){
             case RANDOM:
                 playStatus.setImageResource(R.drawable.ic_shuffle_black_24dp);
+
                 break;
             case CIRCULATION:
                 playStatus.setImageResource(R.drawable.ic_repeat_black_24dp);
@@ -455,37 +459,6 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
                 break;
         }
     }
-
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-
-
-
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-
-
-                break;
-            case MotionEvent.ACTION_MOVE:
-
-
-                break;
-            case MotionEvent.ACTION_UP:
-
-
-                break;
-            case MotionEvent.ACTION_CANCEL:
-
-
-                break;
-        }
-
-
-        return super.onTouchEvent(event);
-    }
-
 
 
     @Override
@@ -528,9 +501,20 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-    public void showAlbumBook(Music music){
-        
-
+    @Override
+    public void setScroll(boolean scroll) {
+        if (this.viewPager!=null){
+            this.viewPager.setScroll(scroll);
+        }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+
+
+
+
+        return super.onTouchEvent(event);
+    }
 }

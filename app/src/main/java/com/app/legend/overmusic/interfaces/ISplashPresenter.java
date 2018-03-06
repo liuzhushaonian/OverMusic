@@ -1,5 +1,9 @@
 package com.app.legend.overmusic.interfaces;
 
+import com.app.legend.overmusic.bean.ShowInfo;
+
+import java.util.List;
+
 /**
  *
  * Created by legend on 2018/3/3.
@@ -7,5 +11,5 @@ package com.app.legend.overmusic.interfaces;
 
 public interface ISplashPresenter {
 
-    void setInfo();
+    void setInfo(List<ShowInfo> showInfoList);
 }

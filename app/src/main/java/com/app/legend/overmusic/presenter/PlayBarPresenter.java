@@ -6,17 +6,16 @@ import android.util.Log;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.AutoPagerEvent;
 import com.app.legend.overmusic.event.ChangePagerEvent;
-import com.app.legend.overmusic.event.PagerChangeEvent;
-import com.app.legend.overmusic.event.PagerNotifyChangeEvent;
 import com.app.legend.overmusic.event.PlayEvent;
-import com.app.legend.overmusic.event.PlayListChangeEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
+import com.app.legend.overmusic.event.StatusChangeEvent;
 import com.app.legend.overmusic.interfaces.IPlayBarPresenter;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
 import java.util.List;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 /**
  *
@@ -26,7 +25,7 @@ import io.reactivex.disposables.Disposable;
 public class PlayBarPresenter {
 
     private IPlayBarPresenter playBarFragment;
-    private Disposable disposable,pagerChange,playStatus,autoPager,play_position;
+    private Disposable pagerChange,playStatus,autoPager,play_position,status_dis;
 
     public PlayBarPresenter(IPlayBarPresenter playBarFragment) {
         this.playBarFragment = playBarFragment;
@@ -71,18 +70,17 @@ public class PlayBarPresenter {
 
         });
 
-//        RxBus.getDefault().tObservable(ChangePagerEvent.class).subscribe(changePagerEvent -> {
-//
-//           setData(changePagerEvent.getPosition(),changePagerEvent.getMusicList());
-//        });
+        status_dis=RxBus.getDefault().tObservable(StatusChangeEvent.class)
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(statusChangeEvent -> {
+            if (notNull()){
+                playBarFragment.setScroll(statusChangeEvent.isScroll());
+            }
+        });
+
 
     }
 
     public void unregister(){
-
-        if (disposable!=null&&!disposable.isDisposed()){
-            disposable.dispose();
-        }
 
         if (pagerChange!=null&&!pagerChange.isDisposed()){
             pagerChange.dispose();

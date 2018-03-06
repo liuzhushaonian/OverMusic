@@ -41,7 +41,7 @@
             android:layout_marginStart="@dimen/progress_bar_margin"
             android:layout_marginTop="@dimen/progress_bar_margin"
             android:id="@+id/playing_bar_progress"
-            app:roundColor="@color/colorGrey"
+            app:roundColor="@color/colorButton"
             app:roundProgressColor="@color/colorOrange"
             app:max="500"
             />
@@ -56,6 +56,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:backgroundTint="@color/colorWhite"
+
             />
 
 

@@ -16,7 +16,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginTop="64dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@mipmap/icon"
+        android:scaleType="center"
         android:layout_gravity="center_horizontal"
         />
 
@@ -32,26 +33,38 @@
             android:src="@drawable/splash"
             />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+
+            >
+
+
+
+
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:maxLines="1"
+
+            android:maxLines="4"
             android:text="@string/test"
             android:typeface="monospace"
+            android:lineSpacingExtra="2dp"
             />
 
         <TextView
             android:id="@+id/music_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
             android:gravity="end"
             android:paddingEnd="@dimen/default_space"
             android:text="@string/artist_name"
             />
+
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"

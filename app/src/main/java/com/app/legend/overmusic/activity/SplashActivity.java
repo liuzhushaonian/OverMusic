@@ -8,6 +8,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,13 +21,19 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.app.legend.overmusic.R;
+import com.app.legend.overmusic.bean.ShowInfo;
+import com.app.legend.overmusic.interfaces.ISplashPresenter;
+import com.app.legend.overmusic.presenter.SplashPresenter;
+
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class SplashActivity extends BaseActivity {
+public class SplashActivity extends BaseActivity implements ISplashPresenter{
 
     private TextView info,song;
     private static final String[] permissionStrings=
@@ -34,17 +41,23 @@ public class SplashActivity extends BaseActivity {
 
     private boolean getPermission=true;
     private boolean canGo=false;
+    private SplashPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility( View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+        
         setContentView(R.layout.activity_splash);
 
         getComponent();
 
-        startAnimation(info);
-        startAnimation(song);
+        presenter=new SplashPresenter(this);
 
+        presenter.getShowData();
     }
 
     private void getComponent(){
@@ -56,8 +69,8 @@ public class SplashActivity extends BaseActivity {
     private void startAnimation(View view){
 
         int margin=getResources().getDimensionPixelSize(R.dimen.bottom_play_bar);
-        ObjectAnimator animator=ObjectAnimator.ofFloat(view,"translationY",margin,0).setDuration(2000);
-        ObjectAnimator alpha=ObjectAnimator.ofFloat(view,"alpha",0,1).setDuration(2000);
+        ObjectAnimator animator=ObjectAnimator.ofFloat(view,"translationY",margin,0).setDuration(1000);
+        ObjectAnimator alpha=ObjectAnimator.ofFloat(view,"alpha",0,1).setDuration(1000);
 
         AnimatorSet set=new AnimatorSet();
 
@@ -141,7 +154,7 @@ public class SplashActivity extends BaseActivity {
                         message.arg1=i;
 
                         handler.handleMessage(message);
-                        if (i>=3){
+                        if (i>=2){
                             canGo=true;
                         }
 
@@ -165,7 +178,7 @@ public class SplashActivity extends BaseActivity {
 
                     int t=msg.arg1;
 
-                    if (t==3){
+                    if (t==2){
                         canGo=true;
                         startMainActivity();
                     }
@@ -177,12 +190,33 @@ public class SplashActivity extends BaseActivity {
     };
 
     private void startMainActivity(){
-        finish();
-        overridePendingTransition(0,R.anim.fade);
+
         Intent intent=new Intent(SplashActivity.this,MainActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.enter,0);
+        finish();
+        overridePendingTransition(0,R.anim.fade);
     }
 
 
+    @Override
+    public void setInfo(List<ShowInfo> showInfoList) {
 
+        int max=showInfoList.size()-1;
+
+
+
+        int r= new Random().nextInt(max);
+
+        ShowInfo info=showInfoList.get(r);
+
+        String in="——"+info.getSong();
+
+        this.info.setText(info.getInfo());
+        this.song.setText(in);
+
+
+        startAnimation(this.info);
+        startAnimation(this.song);
+    }
 }

@@ -79,7 +79,7 @@
                     android:layout_toEndOf="@+id/start_time"
                     android:layout_toStartOf="@+id/end_time"
                     android:max="500"
-                    android:progressTint="@color/colorOrange"
+                    android:progressTint="@color/colorWhite"
                     app:layout_constraintEnd_toStartOf="@+id/end_time"
                     app:layout_constraintStart_toEndOf="@+id/start_time"
                     app:layout_constraintTop_toTopOf="parent" />

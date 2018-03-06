@@ -37,4 +37,6 @@ public interface IPlayingPresenter {
 
     void setBlurBitmap(Bitmap blurBitmap);
 
+    void setScroll(boolean scroll);
+
 }
