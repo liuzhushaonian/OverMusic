@@ -17,3 +17,22 @@ it's a music player
 代码10000+行，比上次那个更为用心，且大部分图标都是矢量图，所以也使得整个APP打包后体积只有1.5M，并且这还是尚未做好体积优化的阶段。
 
 大概就是这么多，APP可能会上架到商店，这要看我有没有心情吧，毕竟最近诸事不顺。
+
+预览：
+
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-180837.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-183132.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-183345.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-183844.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-183915.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-183932.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-183955.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184001.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184143.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184150.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184211.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184245.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184257.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184307.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184313.png)
+![image](https://github.com/liuzhushaonian/OverMusic/blob/master/image/Screenshot_20180315-184536.png)
