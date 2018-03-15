@@ -158,7 +158,7 @@ public class PlayingAlumFragment extends Fragment implements IPlayingAlbumFragme
         adapter.setListener(view -> {
             lrcView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
-            setScroll(false);//不允许滑动
+            setScroll(true);//不允许滑动
         });
 
         /**
@@ -332,7 +332,7 @@ public class PlayingAlumFragment extends Fragment implements IPlayingAlbumFragme
             lrcView.setVisibility(View.VISIBLE);
 
             imageView.setVisibility(View.GONE);
-            setScroll(true);//恢复滑动
+            setScroll(false);//恢复滑动
         });
 
     }
@@ -504,6 +504,11 @@ public class PlayingAlumFragment extends Fragment implements IPlayingAlbumFragme
                 lrcView.setVisibility(View.GONE);
                 imageView.setVisibility(View.VISIBLE);
                 setScroll(true);
+
+                if (textSizeSeekBar.getVisibility()==View.VISIBLE){
+                    hideCenterLine(textSizeSeekBar);
+                }
+
             });
 
         }else {
