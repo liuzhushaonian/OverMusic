@@ -90,4 +90,15 @@
         \nJust know that I'll be waiting here for you</string>
     <string name="artist_name">——Happier</string>
 
+
+    <string name="waning">
+        警告！这个功能仅用作实验\n
+        部分歌词如果没有翻译版本\n
+        或是翻译版本与原版时间轴无法对上\n
+        将会导致翻译歌词无法显示出来\n
+        如果发生了部分翻译歌词显示而部分无法显示\n
+        可以将sdcard/OverMusic/lrc/下的带"t"开头的歌词文件删除\n
+        或者有能人手动打开歌词文件并修改时间轴\n
+        所以，如果歌词没问题，请不要随意更改
+    </string>
 </resources>

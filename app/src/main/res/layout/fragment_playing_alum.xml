@@ -5,13 +5,93 @@
     tools:context="com.app.legend.overmusic.fragment.PlayingAlumFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
+
     <ImageView
+        android:id="@+id/play_album_book"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/play_album_book"
-        android:src="@drawable/ic_audiotrack_black_150dp"
         android:background="@color/colorCyan"
         android:scaleType="center"
-        />
+        android:src="@drawable/ic_audiotrack_black_150dp" />
+
+    <FrameLayout
+        android:id="@+id/lrc_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorSliver"
+        android:visibility="gone"
+        >
+
+
+        <com.app.legend.overmusic.utils.LrcRecyclerView
+            android:id="@+id/lrc_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </com.app.legend.overmusic.utils.LrcRecyclerView>
+
+        <LinearLayout
+            android:id="@+id/center_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/lrc_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/lrc_playing_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_play_arrow_black_24dp"
+                android:tint="@color/colorGrey" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_gravity="center_vertical"
+                android:background="@color/colorGrey" />
+
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/lrc_expand_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end"
+            android:background="@drawable/ic_drag_handle_black_24dp" />
+
+        <SeekBar
+            android:id="@+id/text_size_seek_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="@dimen/default_space"
+            android:layout_marginEnd="@dimen/default_space"
+            android:layout_marginStart="@dimen/default_space"
+            android:background="@color/colorWhite"
+            android:max="100"
+            android:padding="@dimen/default_space"
+            android:progressTint="@color/colorExpand"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/null_lrc_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:text="该歌曲没有歌词~"
+            android:visibility="gone" />
+
+
+    </FrameLayout>
 
 </FrameLayout>

@@ -3,6 +3,8 @@ package com.app.legend.overmusic.presenter;
 
 
 import android.graphics.Bitmap;
+import android.util.Log;
+
 import com.app.legend.overmusic.bean.Album;
 import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
@@ -18,15 +20,20 @@ import com.app.legend.overmusic.event.StatusChangeEvent;
 import com.app.legend.overmusic.interfaces.IPlayingPresenter;
 import com.app.legend.overmusic.utils.ImageLoader;
 import com.app.legend.overmusic.utils.ImageUtil;
+import com.app.legend.overmusic.utils.InternetUtil;
+import com.app.legend.overmusic.utils.JsonUtil;
+import com.app.legend.overmusic.utils.LyricManager;
 import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
 import java.util.ArrayList;
 import java.util.List;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -145,6 +152,7 @@ public class PlayingPresenter{
     private void setMusic(Music music){
         if (activity!=null){
             activity.setMusic(music);
+//            getMusicData(music);
         }
     }
 
@@ -190,6 +198,38 @@ public class PlayingPresenter{
                         activity.setBlurBitmap(bitmaps.get(0));
 
                     }
+                });
+    }
+
+
+    private void getMusicData(Music music){
+
+        Observable
+                .create((ObservableOnSubscribe<Long>) e -> {
+                    String json=InternetUtil.getUtil().getJson("type=search&s="+music.getSongName());
+
+//                    Log.d("jj--->>",json);
+                    long id=JsonUtil.getJsonUtil().getSongId(json);
+
+                    String doing="type=lyric&id="+id;
+
+                    String j=InternetUtil.getUtil().getJson(doing);
+
+//                    Log.d("j---->>",j);
+
+                   List<String> lrcList= JsonUtil.getJsonUtil().getLrcList(j);
+
+                   String lrc=lrcList.get(0);
+
+                    LyricManager.getManager().parseLrc(lrc);
+
+
+                    e.onNext(id);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(eLong -> {
+
                 });
     }
 }

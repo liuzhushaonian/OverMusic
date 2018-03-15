@@ -34,4 +34,8 @@
     <color name="colorDown">#00f6fdf6</color>
 
     <color name="colorSplash">#f6fdf6</color>
+    <color name="colorSliver">#b4e6e6e6</color>
+    <color name="colorExpand">#b55c5c5c</color>
+
+
 </resources>

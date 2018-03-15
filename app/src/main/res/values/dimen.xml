@@ -31,4 +31,6 @@
     <dimen name="notification_padding">8dp</dimen>
 
     <dimen name="notification_big_book">100dp</dimen>
+
+    <dimen name="lrc_text_size">14sp</dimen>
 </resources>

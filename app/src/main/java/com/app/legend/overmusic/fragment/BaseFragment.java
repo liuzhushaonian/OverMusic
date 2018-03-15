@@ -51,4 +51,6 @@ public class BaseFragment extends Fragment {
         return getActivity().getSharedPreferences("over_music_shared", Context.MODE_PRIVATE).getInt("color",defaultValue);
     }
 
+
+
 }

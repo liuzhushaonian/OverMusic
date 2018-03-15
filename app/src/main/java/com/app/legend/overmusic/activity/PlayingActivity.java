@@ -30,6 +30,7 @@ import com.app.legend.overmusic.bean.Artist;
 import com.app.legend.overmusic.bean.Music;
 import com.app.legend.overmusic.event.AutoPagerEvent;
 import com.app.legend.overmusic.event.SeekEvent;
+import com.app.legend.overmusic.fragment.PlayingAlumFragment;
 import com.app.legend.overmusic.interfaces.IPlayingPresenter;
 import com.app.legend.overmusic.presenter.PlayingPresenter;
 import com.app.legend.overmusic.utils.Mp3Util;
@@ -157,7 +158,7 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 trackSeek=false;
-                RxBus.getDefault().post(new SeekEvent(seek_progress));
+                postToChangeProgress(seek_progress);
                 seek_progress=0;//恢复，避免影响之后的播放
             }
         });
@@ -508,13 +509,17 @@ public class PlayingActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
 
+    public void postToChangeProgress(int seek_progress){
 
+        RxBus.getDefault().post(new SeekEvent(seek_progress));
 
-
-
-        return super.onTouchEvent(event);
     }
+
+    public void setPagerSrcoll(boolean srcoll){
+
+        this.viewPager.setScroll(srcoll);
+
+    }
+
 }

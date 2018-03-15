@@ -26,6 +26,7 @@ import com.app.legend.overmusic.broadcast.PlayingBroadcast;
 import com.app.legend.overmusic.event.GetProgressEvent;
 import com.app.legend.overmusic.event.PlayPositionEvent;
 import com.app.legend.overmusic.event.SeekEvent;
+import com.app.legend.overmusic.event.SetLrcProgressEvent;
 import com.app.legend.overmusic.interfaces.IHelper;
 import com.app.legend.overmusic.utils.ColorUtil;
 import com.app.legend.overmusic.utils.ImageLoader;
@@ -262,6 +263,9 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
     private void setProgress(int position){
         if (mediaPlayer!=null){
             mediaPlayer.seekTo(position);
+            if (!mediaPlayer.isPlaying()){
+                mediaPlayer.start();
+            }
         }
     }
 
@@ -279,10 +283,12 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
                             int progress = (int) ((mediaPlayer.getCurrentPosition() / (time / 500)));
 
                             setCurrentPosition(progress, mediaPlayer.getCurrentPosition());
+
+                            postProgress(mediaPlayer.getCurrentPosition());
                         }
                     };
 
-                    timer.schedule(timerTask,0,1000);
+                    timer.schedule(timerTask,0,100);
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -480,4 +486,8 @@ public class PlayService extends Service implements IHelper,AudioManager.OnAudio
     }
 
 
+    private void postProgress(long progress){
+
+        RxBus.getDefault().post(new SetLrcProgressEvent(progress));
+    }
 }
