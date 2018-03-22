@@ -16,7 +16,9 @@ import com.app.legend.overmusic.event.AddArtistMusicToList;
 import com.app.legend.overmusic.event.AddFragmentEvent;
 import com.app.legend.overmusic.event.SearchArtistEvent;
 import com.app.legend.overmusic.fragment.ArtistInfoFragment;
+import com.app.legend.overmusic.utils.ImageLoader;
 import com.app.legend.overmusic.utils.Mp3Util;
+import com.app.legend.overmusic.utils.OverApplication;
 import com.app.legend.overmusic.utils.PlayHelper;
 import com.app.legend.overmusic.utils.RxBus;
 
@@ -40,10 +42,12 @@ public class ArtistAdapter extends BaseAdapter<ArtistAdapter.ViewHolder> {
     private int type=0;
     public static final int NORMAL=0x00100;
     public static final int SEARCH=0x00300;
-
+    private int w=0;
 
     public ArtistAdapter(int type) {
         this.type = type;
+
+        w= OverApplication.getContext().getResources().getDimensionPixelSize(R.dimen.press_space);
     }
 
     public void setArtists(List<Artist> artists) {
@@ -85,6 +89,9 @@ public class ArtistAdapter extends BaseAdapter<ArtistAdapter.ViewHolder> {
                 holder.button.setVisibility(View.GONE);
             }
 
+            ImageLoader.getImageLoader(OverApplication.getContext())
+                    .setArtistPic(artist.getName(),holder.pic,w,w,10001);
+
 
         }
 
@@ -104,12 +111,14 @@ public class ArtistAdapter extends BaseAdapter<ArtistAdapter.ViewHolder> {
         TextView family_name,name,info;
         ImageView button;
         View view;
+        ImageView pic;
 
         public ViewHolder(View itemView) {
             super(itemView);
             view=itemView;
             family_name=itemView.findViewById(R.id.artist_list_album);
             name=itemView.findViewById(R.id.artist_list_song_name);
+            pic=itemView.findViewById(R.id.artist_item_pic);
 //            info=itemView.findViewById(R.id.artist_list_info);
 
             button=itemView.findViewById(R.id.artist_list_button);

@@ -11,14 +11,18 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.app.legend.overmusic.R;
+import com.app.legend.overmusic.bean.Album;
 import com.app.legend.overmusic.bean.Music;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Executor;
@@ -33,6 +37,10 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  *
@@ -49,18 +57,10 @@ public class ImageLoader {
 
     static Context context;
 
-    private boolean scroll=false;
-
-    public void setScroll(boolean scroll) {
-        this.scroll = scroll;
-    }
-
     public static final int SMALL=1000;
     public static final int ALBUM=2000;
     public static final int BIG=3000;
     public static final int ALBUMINFO=4000;
-
-
     private static final int CPU_COUNT=Runtime.getRuntime().availableProcessors();
     private static final int CORE_POOL_SIZE=CPU_COUNT+1;
     private static final int MAXNUM_POOL_SIZE=CPU_COUNT*2+1;
@@ -101,8 +101,6 @@ public class ImageLoader {
                 imageLoader = new ImageLoader();
                 context = con;
                 CACHE_PATH = context.getFilesDir().getAbsolutePath();
-
-//                Log.d("tag--->>", CACHE_PATH + "");
             }
         }
 
@@ -164,24 +162,21 @@ public class ImageLoader {
 
 
         Observable
-                .create(new ObservableOnSubscribe<Bitmap>() {
-                    @Override
-                    public void subscribe(ObservableEmitter<Bitmap> e) throws Exception {
+                .create((ObservableOnSubscribe<Bitmap>) e -> {
 
-                        Bitmap bitmap=null;
-                        imageView.setTag(url);
+                    Bitmap bitmap=null;
+                    imageView.setTag(url);
 
-                        bitmap=getCache(url,type,width,height);
+                    bitmap=getCache(url,type,width,height);
 
-                        if (bitmap==null) {
-                            bitmap = getBitmapFromLocal(url, width, height,type);
-                        }
+                    if (bitmap==null) {
+                        bitmap = getBitmapFromLocal(url, width, height,type);
+                    }
 
-                        if (bitmap!=null){
-                            cacheBitmpToDisk(url,type,bitmap);
-                            cacheBitmapToMemory(url,type,bitmap);
-                            e.onNext(bitmap);
-                        }
+                    if (bitmap!=null){
+                        cacheBitmpToDisk(url,type,bitmap);
+                        cacheBitmapToMemory(url,type,bitmap);
+                        e.onNext(bitmap);
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -400,9 +395,28 @@ public class ImageLoader {
         Runnable runnable= () -> {
             String url=getAlbumArt(music.getAlbumId());
 
-            Bitmap bitmap=getCache(url,type,width,height);
-            if (bitmap==null){
+            Bitmap bitmap=getCache(url,type,width,height);//查找本地缓存
+
+            if (bitmap==null){//查找不到本地图片缓存，查找网络图片缓存
+
+                bitmap=getCache(music.getAlbumName(),type,width,height);
+
+
+            }
+
+
+            if (bitmap==null){//查找本地数据库获取
                 bitmap=getBitmapFromLocal(url,width,height,type);
+            }
+
+            if (bitmap==null){//以上皆查找不到，开启网络查找
+                String doing = "type=search&&search_type=10&s=" + music.getAlbumName();
+
+                String json=InternetUtil.getUtil().getJson(doing);
+
+                String net_url=JsonUtil.getJsonUtil().getAlbumPic(json);
+
+                bitmap=getBitmapFromNet(music.getAlbumName(),net_url,width,height,type);
             }
 
             Result result=new Result(type,width,height,bitmap,imageView,music.getAlbumId());
@@ -413,19 +427,44 @@ public class ImageLoader {
 
     }
 
-    public void setAlbumInfoBook(int id,ImageView imageView, int type, int width, int height){
+    /**
+     * 设置专辑页面大图
+     *
+     * @param imageView
+     * @param type
+     * @param width
+     * @param height
+     */
+    public void setAlbumInfoBook(Album album, ImageView imageView, int type, int width, int height){
 
 
         Runnable runnable=()->{
 
-            String url=getAlbumArt(id);
+            String url=getAlbumArt(album.getId());
 
             Bitmap bitmap=getCache(url,type,width,height);
+
+            if (bitmap==null){
+
+                bitmap=getCache(album.getAlbum_name(),type,width,height);
+            }
+
             if (bitmap==null){
                 bitmap=getBitmapFromLocal(url,width,height,type);
             }
 
-            Result result=new Result(type,width,height,bitmap,imageView,id);
+            if (bitmap==null){
+
+                String doing = "type=search&search_type=10&s=" + album.getAlbum_name();//搜索专辑
+
+                String json=InternetUtil.getUtil().getJson(doing);
+
+                String net_url=JsonUtil.getJsonUtil().getAlbumPic(json);
+
+                bitmap=getBitmapFromNet(album.getAlbum_name(),net_url,width,height,type);
+            }
+
+            Result result=new Result(type,width,height,bitmap,imageView,album.getId());
 
             handler.obtainMessage(200,result).sendToTarget();
 
@@ -435,10 +474,54 @@ public class ImageLoader {
 
     }
 
+    /**
+     * 设置歌手图片
+     * @param name
+     * @param imageView
+     * @param w
+     * @param h
+     * @param type
+     */
+    public void setArtistPic(String name,ImageView imageView,int w,int h,int type){
+
+        Runnable runnable=()->{
+
+//            String url=getAlbumArt(album.getId());
+
+            Bitmap bitmap=getCache(name,type,w,h);//找本地缓存
+
+
+            if (bitmap==null){//开网络查找
+
+                String doing = "type=search&search_type=100&s=" + name;//搜索歌手
+
+                String json=InternetUtil.getUtil().getJson(doing);
+
+                String net_url=JsonUtil.getJsonUtil().getArtistPic(json);
+
+                Log.d("net_url--->>",net_url);
+
+                bitmap=getBitmapFromNet(name,net_url,w,h,type);
+            }
+
+            ArtistResult result=new ArtistResult(w,h,bitmap,imageView,name,type);
+
+            handler.obtainMessage(300,result).sendToTarget();
+
+        };
+
+        ThreadPool.execute(runnable);
+
+
+    }
+
+
+
     //提供外部直接获取封面图
     public Bitmap getBitmap(int id){
         String url=getAlbumArt(id);
         Bitmap bitmap=BitmapFactory.decodeFile(url);
+
         return bitmap;
 
     }
@@ -501,6 +584,20 @@ public class ImageLoader {
                         imageView.setBackgroundColor(ColorUtil.getAlbumColor(result2.getId()));
 
                         imageView.setImageResource(R.drawable.ic_audiotrack_black_100dp);
+                    }
+
+                    break;
+                case 300:
+
+                    ArtistResult artistResult= (ArtistResult) msg.obj;
+                    Bitmap pic=artistResult.getBitmap();
+                    ImageView imageView=artistResult.getImageView();
+
+                    if (pic!=null){
+                        imageView.setImageBitmap(pic);
+                        imageView.setVisibility(View.VISIBLE);
+                    }else {
+                        imageView.setVisibility(View.GONE);
                     }
 
                     break;
@@ -575,6 +672,109 @@ public class ImageLoader {
         public int getId() {
             return id;
         }
+
+    }
+
+
+    static class ArtistResult{
+
+        private int w;
+        private int h;
+        private Bitmap bitmap;
+        private String name;
+        private int type;
+        private ImageView imageView;
+
+        public ImageView getImageView() {
+            return imageView;
+        }
+
+        public ArtistResult(int w, int h, Bitmap bitmap, ImageView imageView, String name, int type) {
+            this.w = w;
+            this.h = h;
+            this.bitmap = bitmap;
+            this.name = name;
+            this.type = type;
+            this.imageView=imageView;
+
+        }
+
+        public int getW() {
+            return w;
+        }
+
+        public int getH() {
+            return h;
+        }
+
+        public Bitmap getBitmap() {
+            return bitmap;
+        }
+        public String getName() {
+            return name;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+    }
+
+
+    /**
+     * 从网络获取图片
+     *
+     * @return
+     */
+    private Bitmap getBitmapFromNet(String name,String url,int w,int h,int type){
+
+        InputStream inputStream=null;
+
+        Bitmap bitmap=null;
+
+        try {
+
+            Request.Builder builder1=new Request.Builder().url(url).method("GET",null);
+
+            Request request=builder1.build();
+
+            OkHttpClient.Builder builder=new OkHttpClient.Builder()
+                    .connectTimeout(15, TimeUnit.SECONDS)
+                    .writeTimeout(20,TimeUnit.SECONDS)
+                    .readTimeout(20,TimeUnit.SECONDS);
+
+            OkHttpClient okHttpClient=builder.build();
+
+            Call call=okHttpClient.newCall(request);
+
+
+            Response response=call.execute();
+
+            inputStream = response.body().byteStream();
+
+            BitmapFactory.Options options=new BitmapFactory.Options();
+
+            options.inPreferredConfig= Bitmap.Config.ARGB_8888;
+
+            options.inSampleSize=1;
+
+            bitmap=BitmapFactory.decodeStream(inputStream,null,options);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (bitmap!=null){//进行缓存
+
+            cacheBitmapToMemory(name,type,bitmap);
+            cacheBitmpToDisk(name,type,bitmap);
+            bitmap=Bitmap.createScaledBitmap(bitmap,w,h,false);
+        }
+
+
+
+        return bitmap;
 
     }
 

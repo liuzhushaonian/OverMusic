@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,7 @@ import com.app.legend.overmusic.interfaces.IArtistMusicPresenter;
 import com.app.legend.overmusic.interfaces.TranslucentListener;
 import com.app.legend.overmusic.presenter.ArtistInfoPresenter;
 import com.app.legend.overmusic.utils.AlbumItemSpace;
+import com.app.legend.overmusic.utils.ImageLoader;
 import com.app.legend.overmusic.utils.MyNestedScrollView;
 
 import java.util.List;
@@ -46,6 +50,8 @@ public class ArtistInfoFragment extends BaseFragment implements IArtistMusicPres
     private ArtistInfoPresenter presenter;
     private MyNestedScrollView nestedScrollView;
     public static final String TAG="artist";
+    private ImageView pic;
+    private FrameLayout frameLayout;
 
 
     public ArtistInfoFragment() {
@@ -60,6 +66,7 @@ public class ArtistInfoFragment extends BaseFragment implements IArtistMusicPres
         View view=inflater.inflate(R.layout.fragment_artist_music, container, false);
         presenter=new ArtistInfoPresenter(this);
         getComponent(view);
+        reDraw();
         getArtist();
         initToolbar();
         initList();
@@ -78,7 +85,16 @@ public class ArtistInfoFragment extends BaseFragment implements IArtistMusicPres
         Bundle bundle=getArguments();
         this.artist= (Artist) bundle.getSerializable(TAG);
 
+        assert artist != null;
         artistName.setText(artist.getName());
+
+        int w=getResources().getDisplayMetrics().widthPixels;
+        int h= (int) (w*0.8);
+
+
+        ImageLoader.getImageLoader(getContext())
+                .setArtistPic(artist.getName(),pic,w,h,10002);
+
     }
 
     private void getComponent(View view){
@@ -88,6 +104,8 @@ public class ArtistInfoFragment extends BaseFragment implements IArtistMusicPres
         artistName=view.findViewById(R.id.artist_info_name);
         toolbar=view.findViewById(R.id.artist_info_toolbar);
         nestedScrollView=view.findViewById(R.id.artist_info_netes_scroll_view);
+        pic=view.findViewById(R.id.artist_pic);
+        frameLayout=view.findViewById(R.id.frame_top);
 
     }
 
@@ -151,5 +169,21 @@ public class ArtistInfoFragment extends BaseFragment implements IArtistMusicPres
     @Override
     public void onTranslucent(int alpha) {
         toolbar.getBackground().setAlpha(alpha);
+    }
+
+
+    /**
+     * 重写frameLayout的高度
+     */
+    private void reDraw(){
+
+        int h= (int) (getResources().getDisplayMetrics().widthPixels*0.8);
+
+        LinearLayout.LayoutParams layoutParams= (LinearLayout.LayoutParams) frameLayout.getLayoutParams();
+
+        layoutParams.height=h;
+
+        frameLayout.setLayoutParams(layoutParams);
+
     }
 }

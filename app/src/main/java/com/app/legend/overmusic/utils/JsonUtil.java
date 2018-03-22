@@ -57,6 +57,11 @@ public class JsonUtil {
     }
 
 
+    /**
+     * 解析json获取图片链接
+     * @param json
+     * @return
+     */
     public String getAlbumPic(String json){
 
         String pic="";
@@ -67,24 +72,48 @@ public class JsonUtil {
             jsonObject = new JSONObject(json);
             JSONObject jsonObject1=jsonObject.getJSONObject("result");
 
-            int code=jsonObject.getInt("code");
+            Log.d("json--->>",json);
 
-            if (code!=200){
-                return pic;
-            }
-
-            JSONArray jsonArray=jsonObject1.getJSONArray("songs");
+            JSONArray jsonArray=jsonObject1.getJSONArray("albums");
 
             JSONObject object= (JSONObject) jsonArray.get(0);
 
-            JSONObject object1=object.getJSONObject("al");
+//            JSONObject object1=object.getJSONObject("al");
 
-            pic=object1.getString("picUrl");
+            pic=object.getString("picUrl");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         return pic;
+    }
+
+
+    //获取艺术家的图片路径
+    public String getArtistPic(String json){
+
+        String pic="";
+
+        JSONObject jsonObject= null;
+
+        try {
+            jsonObject = new JSONObject(json);
+            JSONObject jsonObject1=jsonObject.getJSONObject("result");
+
+            JSONArray jsonArray=jsonObject1.getJSONArray("artists");
+
+            JSONObject object= (JSONObject) jsonArray.get(0);
+
+//            JSONObject object1=object.getJSONObject("artist");
+
+            pic=object.getString("picUrl");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return pic;
+
+
     }
 
 

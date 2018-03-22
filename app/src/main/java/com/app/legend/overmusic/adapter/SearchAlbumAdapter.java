@@ -57,7 +57,7 @@ public class SearchAlbumAdapter extends BaseAdapter<SearchAlbumAdapter.ViewHolde
 
             int width = OverApplication.getContext().getResources().getDimensionPixelOffset(R.dimen.press_space);
 
-            ImageLoader.getImageLoader(OverApplication.getContext()).setAlbumInfoBook(album.getId(),holder.book,ImageLoader.SMALL,width,width);
+            ImageLoader.getImageLoader(OverApplication.getContext()).setAlbumInfoBook(album,holder.book,ImageLoader.SMALL,width,width);
 
         }else {
             super.onBindViewHolder(holder, position);

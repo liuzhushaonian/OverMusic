@@ -98,40 +98,24 @@ public class AlbumInfoFragment extends BaseFragment implements IAlbumMusicPresen
 
             reDraw();
 
+            int w=getResources().getDisplayMetrics().widthPixels;
+
+            int h= (int) (w*0.8);
+
+
             Bitmap bitmap=ImageLoader.getImageLoader(getContext()).getBitmap(album.getId());
 
+
+
+//            ImageLoader.getImageLoader(getContext())
+//                    .setAlbumInfoBook(this.album,bg,10003,w,h);
+
             if (bitmap!=null) {
-
-
-//                bitmap = ImageUtil.getBitmap(getContext(), bitmap, 25);
-//
-//                int d=getResources().getDimensionPixelSize(R.dimen.album_info_w);
-//                ImageLoader.getImageLoader(getContext()).setAlbumInfoBook(album.getId(),album_book,ImageLoader.ALBUMINFO,d,d);
-//                album_name.setText(album.getAlbum_name());
-//                album_info.setText(album.getArtist());
-//                Observable
-//                        .create((ObservableOnSubscribe<Integer>) e -> {
-//                            int color= ColorUtil.getColor(bitmap);
-//                            e.onNext(color);
-//                        })
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .subscribe(integer -> {
-//                            album_name.setTextColor(integer);
-//                            album_name.setText(album.getAlbum_name());
-//                        });
 
                 bg.setImageBitmap(bitmap);
 
             }else {
                 bg.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-//                BitmapDrawable drawable= (BitmapDrawable) getResources().getDrawable(R.drawable.bg,getActivity().getTheme());
-//
-//                bitmap=drawable.getBitmap();
-//                bitmap=ImageUtil.getBitmap(getContext(),bitmap,25);
-//                bg.setImageBitmap(bitmap);
-
 
             }
         }

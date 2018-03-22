@@ -10,22 +10,40 @@
     android:clickable="true"
     >
 
-    <TextView
+    <FrameLayout
         android:layout_width="@dimen/press_space"
         android:layout_height="@dimen/press_space"
-        android:id="@+id/artist_list_album"
-        android:text="O"
-        android:gravity="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/colorWhite"
-        android:background="@color/colorGrey"
+        android:id="@+id/left_view_item"
+        >
+        <TextView
+            android:layout_width="@dimen/press_space"
+            android:layout_height="@dimen/press_space"
+            android:id="@+id/artist_list_album"
+            android:text="O"
+            android:gravity="center"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorWhite"
+            android:background="@color/colorGrey"
 
-        />
+            />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/artist_item_pic"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            />
+
+
+    </FrameLayout>
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/artist_list_album"
+        android:layout_toEndOf="@+id/left_view_item"
         android:layout_marginBottom="@dimen/av_space"
         android:orientation="vertical"
         android:layout_toStartOf="@+id/artist_list_button"

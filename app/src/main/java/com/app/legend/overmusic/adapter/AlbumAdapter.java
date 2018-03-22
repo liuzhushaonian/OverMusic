@@ -78,7 +78,7 @@ public class AlbumAdapter extends BaseAdapter<AlbumAdapter.ViewHolder> {
             holder.name.setText(album.getAlbum_name());
             holder.artist.setText(album.getArtist());
             ImageLoader.getImageLoader(OverApplication.getContext())
-                    .setAlbumInfoBook(album.getId(),holder.book,ImageLoader.ALBUM,holder.width,holder.width);
+                    .setAlbumInfoBook(album,holder.book,ImageLoader.ALBUM,holder.width,holder.width);
         }
 
         super.onBindViewHolder(holder, position);
